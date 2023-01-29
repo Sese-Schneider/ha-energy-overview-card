@@ -1,3 +1,10 @@
+## [1.0.0-dev.3](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2023-01-29)
+
+
+### Bug Fixes
+
+* auto build ([2dc0c5f](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/2dc0c5f3e583176ac322e561cab3f385e0d77233))
+
 ## [1.0.0-dev.2](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2023-01-29)
 
 
