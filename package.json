@@ -1,6 +1,6 @@
 {
     "name": "energy-overview-card",
-    "version": "1.1.0",
+    "version": "1.0.0-dev.3",
     "description": "Lovelace energy-overview-card",
     "keywords": [
         "home-assistant",
@@ -11,7 +11,7 @@
         "custom-cards"
     ],
     "module": "energy-overview-card.js",
-    "repository": "git@github.com:Sese-Schneider/ha-energy-overview-card.git",
+    "repository": "https://github.com/Sese-Schneider/ha-energy-overview-card",
     "author": "Sebastian Schneider <sese.tailor@gmx.net>",
     "license": "MIT",
     "dependencies": {
@@ -20,17 +20,18 @@
         "lit": "^2.0.1"
     },
     "devDependencies": {
-        "@babel/core": "^7.4.3",
+        "@babel/core": "^7.20.12",
         "@babel/plugin-proposal-class-properties": "^7.4.0",
         "@babel/plugin-proposal-decorators": "^7.4.0",
-        "@semantic-release/changelog": "^5.0.1",
-        "@semantic-release/commit-analyzer": "^8.0.1",
-        "@semantic-release/exec": "^5.0.0",
-        "@semantic-release/git": "^9.0.0",
-        "@semantic-release/npm": "^7.0.10",
+        "@semantic-release/changelog": "^6.0.2",
+        "@semantic-release/commit-analyzer": "^9.0.2",
+        "@semantic-release/exec": "^6.0.3",
+        "@semantic-release/git": "^10.0.1",
+        "@semantic-release/npm": "^9.0.2",
         "@semantic-release/release-notes-generator": "^9.0.1",
         "@typescript-eslint/eslint-plugin": "^2.0.0",
         "@typescript-eslint/parser": "^2.0.0",
+        "conventional-changelog-conventionalcommits": "^5.0.0",
         "eslint": "^6.2.2",
         "eslint-config-airbnb-base": "^14.0.0",
         "eslint-plugin-import": "^2.16.0",
@@ -41,7 +42,7 @@
         "rollup-plugin-terser": "^5.1.1",
         "rollup-plugin-typescript2": "^0.24.0",
         "rollup-plugin-uglify": "^6.0.2",
-        "semantic-release": "^17.3.8",
+        "semantic-release": "^20.1.0",
         "typescript": "^3.6.2"
     },
     "scripts": {
