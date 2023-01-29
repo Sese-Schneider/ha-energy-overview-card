@@ -31,6 +31,7 @@
         "@semantic-release/release-notes-generator": "^9.0.1",
         "@typescript-eslint/eslint-plugin": "^2.0.0",
         "@typescript-eslint/parser": "^2.0.0",
+        "conventional-changelog-conventionalcommits": "^5.0.0",
         "eslint": "^6.2.2",
         "eslint-config-airbnb-base": "^14.0.0",
         "eslint-plugin-import": "^2.16.0",
