@@ -4,6 +4,10 @@ on:
   pull_request:
     branches:
       - '*'
+  push:
+    branches:
+      - 'dev'
+      - 'master'
 
 jobs:
   lint:
