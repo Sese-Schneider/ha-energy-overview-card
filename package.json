@@ -1,6 +1,6 @@
 {
     "name": "energy-overview-card",
-    "version": "1.0.0-dev.3",
+    "version": "1.0.0",
     "description": "Lovelace energy-overview-card",
     "keywords": [
         "home-assistant",

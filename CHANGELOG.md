@@ -1,3 +1,10 @@
+## 1.0.0 (2023-01-29)
+
+
+### Features
+
+* Initial Release ([dd63a16](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/dd63a1608cf00cb4b1a4eed9188ac1a3fdbd9cf3))
+
 ## [1.0.0-dev.3](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2023-01-29)
 
 
