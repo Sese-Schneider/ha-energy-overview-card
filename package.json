@@ -11,7 +11,7 @@
         "custom-cards"
     ],
     "module": "energy-overview-card.js",
-    "repository": "git@github.com:Sese-Schneider/ha-energy-overview-card.git",
+    "repository": "https://github.com/Sese-Schneider/ha-energy-overview-card",
     "author": "Sebastian Schneider <sese.tailor@gmx.net>",
     "license": "MIT",
     "dependencies": {
