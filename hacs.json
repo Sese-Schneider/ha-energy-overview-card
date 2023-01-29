@@ -1,5 +1,5 @@
 {
     "name": "Energy Overview Card",
     "render_readme": true,
-    "filename": "dist/energy-overview-card.js"
+    "filename": "energy-overview-card.js"
 }
