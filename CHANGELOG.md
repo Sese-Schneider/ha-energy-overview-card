@@ -1,3 +1,15 @@
+## [2.0.0](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v1.0.0...v2.0.0) (2023-01-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* Configuration yaml has changed
+
+### Features
+
+* Configurable animation speed ([898e9b3](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/898e9b3dc0cf57b73c6ea0ca65df5fc865c7d8ee))
+* Custom amount of entities configurable  ([d3e1556](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/d3e1556638c4602c3edd1e7039cd9bd6bc457137))
+
 ## 1.0.0 (2023-01-29)
 
 
