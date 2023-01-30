@@ -34,11 +34,13 @@ A simple card that shows your current energy usage.
 
 ## Install
 
+### HACS
+
 *This repo can be installed as a custom repository in HACS*
 
 ### Simple install
 
-1. Download and copy `energy-overview-card.js` from the [dist](https://github.com/Sese-Schneider/ha-energy-overview-card/dist) into your `config/www` directory.
+1. Download and copy `energy-overview-card.js` from the latest [release](https://github.com/Sese-Schneider/ha-energy-overview-card/releases/latest) into your `config/www` directory.
 
 2. Add a reference to `energy-overview-card.js` inside your `ui-lovelace.yaml`.
 
