@@ -1,16 +1,17 @@
+export interface EnergyOverviewEntity {
+  power: string;
+  current?: string;
+  voltage?: string;
+  power_factor?: string;
+  label_trailing?: string;
+  label_leading?: string;
+  icon_trailing?: string;
+  icon_leading?: string;
+  color?: string;
+}
+
 export interface EnergyOverviewConfig {
   type: string;
 
-  a_current: string;
-  b_current: string;
-  c_current: string;
-  a_power_factor: string;
-  b_power_factor: string;
-  c_power_factor: string;
-  a_voltage: string;
-  b_voltage: string;
-  c_voltage: string;
-  a_power: string;
-  b_power: string;
-  c_power: string;
+  entities: Array<EnergyOverviewEntity>;
 }

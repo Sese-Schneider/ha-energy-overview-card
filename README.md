@@ -9,28 +9,58 @@ A simple card that shows your current energy usage.
 ![Project Maintenance][maintenance-shield]
 [![GitHub Activity][commits-shield]][commits]
 
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/seseschneider)
+[!["Buy Me A Coffee"](https://buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/seseschneider)
 
-
-![](.github/card.gif)
+![](.github/assets/card.gif)
 
 ## Options
 
-| Name           | Type   | Requirement  | Description                   | Default |
-|----------------|--------|--------------|-------------------------------|---------|
-| type           | string | **Required** | `custom:energy-overview-card` |         |
-| a_current      | string | **Required** | `Phase A current entity`      |         |
-| a_voltage      | string | **Required** | `Phase A voltage entity`      |         |
-| a_power        | string | **Required** | `Phase A power entity`        |         |
-| a_power_factor | string | **Required** | `Phase A power factor entity` |         |
-| b_current      | string | **Required** | `Phase B current entity`      |         |
-| b_voltage      | string | **Required** | `Phase B voltage entity`      |         |
-| b_power        | string | **Required** | `Phase B power entity`        |         |
-| b_power_factor | string | **Required** | `Phase B power factor entity` |         |
-| c_current      | string | **Required** | `Phase C current entity`      |         |
-| c_voltage      | string | **Required** | `Phase C voltage entity`      |         |
-| c_power        | string | **Required** | `Phase C power entity`        |         |
-| c_power_factor | string | **Required** | `Phase C power factor entity` |         |
+| Name     | Type               | Requirement  | Description                        | Default |
+|----------|--------------------|--------------|------------------------------------|---------|
+| type     | string             | **Required** | `custom:energy-overview-card`      |         |
+| entities | Array<PowerEntity> | **Required** | List of power entities (see below) |         |
+
+#### PowerEntity
+
+| Name           | Type         | Requirement  | Description                   | Default                                |
+|----------------|--------------|--------------|-------------------------------|----------------------------------------|
+| power          | state entity | **Required** | State entity for power        |                                        |
+| current        | state entity | *Optional*   | State entity for current      |                                        |
+| voltage        | state entity | *Optional*   | State entity for voltage      |                                        |
+| power_factor   | state entity | *Optional*   | State entity for power_factor |                                        |
+| label_leading  | string       | *Optional*   | Leading label                 |                                        |
+| label_trailing | string       | *Optional*   | Trailing label                |                                        |
+| icon_leading   | string       | *Optional*   | Leading MD icon               | `mdi:transmission-tower`               |
+| icon_trailing  | string       | *Optional*   | Trailing MD icon              | `mdi:home-lightning-bolt`              |
+| color          | string       | *Optional*   | CSS color                     | `var(--energy-grid-consumption-color)` |
+
+### Example configuration
+
+```yaml
+type: custom:energy-overview-card
+entities:
+  - power: sensor.a_p
+    current: sensor.a_c
+    voltage: sensor.a_v
+    power_factor: sensor.a_pf
+    label_leading: P
+    label_trailing: A
+    color: '#488fc2'
+  - power: sensor.b_p
+    current: sensor.b_c
+    voltage: sensor.b_v
+    power_factor: sensor.b_pf
+    label_leading: P
+    label_trailing: B
+    color: '#7dbff5'
+  - power: sensor.c_p
+    current: sensor.c_c
+    voltage: sensor.c_v
+    power_factor: sensor.c_pf
+    label_leading: P
+    label_trailing: C
+    color: '#b1f2ff'
+```
 
 ## Install
 
@@ -38,9 +68,16 @@ A simple card that shows your current energy usage.
 
 *This repo can be installed as a custom repository in HACS*
 
+- Go to HACS → Frontend
+- Click on the three-dot-menu → Custom repositories
+- Add `Sese-Schneider/ha-energy-overview-card` as Lovelace
+- Use the FAB "Explore and download repositories" to search "Energy Overview Card"
+
 ### Simple install
 
-1. Download and copy `energy-overview-card.js` from the latest [release](https://github.com/Sese-Schneider/ha-energy-overview-card/releases/latest) into your `config/www` directory.
+1. Download and copy `energy-overview-card.js` from the
+   latest [release](https://github.com/Sese-Schneider/ha-energy-overview-card/releases/latest) into your `config/www`
+   directory.
 
 2. Add a reference to `energy-overview-card.js` inside your `ui-lovelace.yaml`.
 
@@ -53,8 +90,13 @@ A simple card that shows your current energy usage.
 [Troubleshooting](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins)
 
 [commits-shield]: https://img.shields.io/github/commit-activity/y/Sese-Schneider/ha-energy-overview-card.svg?style=for-the-badge
+
 [commits]: https://github.com/Sese-Schneider/ha-energy-overview-card/commits/master
+
 [license-shield]: https://img.shields.io/github/license/Sese-Schneider/ha-energy-overview-card.svg?style=for-the-badge
+
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2023.svg?style=for-the-badge
+
 [releases-shield]: https://img.shields.io/github/release/Sese-Schneider/ha-energy-overview-card.svg?style=for-the-badge
+
 [releases]: https://github.com/Sese-Schneider/ha-energy-overview-card/releases

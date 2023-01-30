@@ -1,11 +1,7 @@
-/* eslint-disable no-tabs,indent */
-import {
- css, CSSResultGroup, html, LitElement, TemplateResult
-} from "lit";
-import { customElement, property } from "lit/decorators";
-import { HomeAssistant } from "custom-card-helpers";
-
-import { EnergyOverviewConfig } from "./types";
+import {css, CSSResultGroup, html, LitElement, TemplateResult} from "lit";
+import {customElement, property} from "lit/decorators";
+import {HomeAssistant} from "custom-card-helpers";
+import {EnergyOverviewConfig, EnergyOverviewEntity} from "./types";
 
 @customElement("energy-overview-card")
 class EnergyOverviewCard extends LitElement {
@@ -39,6 +35,11 @@ class EnergyOverviewCard extends LitElement {
     if (!config) {
       throw new Error("Invalid configuration");
     }
+    if (!config.entities) throw new Error('At least one entity is required.');
+
+    config.entities.forEach((entity) => {
+      if (!entity.power) throw new Error('Power is required for each entity.');
+    });
 
     this._config = config;
   }
@@ -47,54 +48,49 @@ class EnergyOverviewCard extends LitElement {
     if (!this._config || !this.hass) {
       return html``;
     }
+    const {states} = this.hass;
 
-    const data = [
-      {
-        name: 'A',
-        color: '#488fc2',
-        current: this.hass.states[this._config.a_current].state,
-        power_factor: this.hass.states[this._config.a_power_factor].state,
-        power: this.hass.states[this._config.a_power].state,
-        voltage: this.hass.states[this._config.a_voltage].state,
-      },
-      {
-        name: 'B',
-        color: '#7dbff5',
-        current: this.hass.states[this._config.b_current].state,
-        power_factor: this.hass.states[this._config.b_power_factor].state,
-        power: this.hass.states[this._config.b_power].state,
-        voltage: this.hass.states[this._config.b_voltage].state,
-      },
-      {
-        name: 'C',
-        color: '#b1f2ff',
-        current: this.hass.states[this._config.c_current].state,
-        power_factor: this.hass.states[this._config.c_power_factor].state,
-        power: this.hass.states[this._config.c_power].state,
-        voltage: this.hass.states[this._config.c_voltage].state,
-      }
-    ];
+    const entities: Array<EnergyOverviewEntity> = [];
+    this._config.entities.forEach((entity) => {
+      entities.push({
+        power: states[entity.power].state,
+        current: entity.current ? states[entity.current].state : undefined,
+        voltage: entity.voltage ? states[entity.voltage].state : undefined,
+        power_factor: entity.power_factor ? states[entity.power_factor].state : undefined,
+        color: entity.color ? entity.color : 'var(--energy-grid-consumption-color)',
+        label_trailing: entity.label_trailing ? entity.label_trailing : '',
+        label_leading: entity.label_leading ? entity.label_leading : '',
+        icon_trailing: entity.icon_trailing ? entity.icon_trailing : 'mdi:home-lightning-bolt',
+        icon_leading: entity.icon_leading ? entity.icon_leading : 'mdi:transmission-tower',
+      });
+    });
 
     return html`
 		<ha-card .header="Energy Overview">
-			${data.map((point) => {
-        const power = parseInt(point.power, 10);
-        const animationSpeed = -0.004 * Math.min(power, 1000) + 5;
+			${entities.map((entity) => {
+				console.log(entity);
+				const power = parseInt(entity.power, 10);
+				const animationSpeed = -0.004 * Math.min(power, 1000) + 5;
+
 				return html`
-					<div style="--energy-line-color: ${point.color}; max-width: 492px; padding: 8px">
+					<!--suppress CssUnresolvedCustomProperty -->
+					<div style="--energy-line-color: ${entity.color}; max-width: 492px; padding: 8px">
 						<div
 							style="display: flex; justify-content: space-evenly; align-items: center; margin-bottom: -8px;">
-							<div style="display: flex; justify-content: center; align-items: center">
-								<span class="secondary">${point.voltage}V</span>
-								<div style="width: 8px"></div>
-								<span class="secondary">${point.current}A</span>
-							</div>
-							<span class="secondary">${point.power}W</span>
-							<span class="secondary">${Math.round(parseFloat(point.power_factor))}%</span>
+							${entity.current || entity.voltage ? html`
+									<div style="display: flex; justify-content: center; align-items: center">
+										${entity.voltage ? html`<span class="secondary">${entity.voltage}V</span>` : ``}
+										${entity.current && entity.voltage ? html`<div style="width: 8px"></div>` : ``}
+										${entity.current ? html`<span class="secondary">${entity.current}A</span>` : ``}
+									</div>`
+								: ``}
+							<span class="secondary">${entity.power}W</span>
+							${entity.power_factor ? html`<span class="secondary">${Math.round(parseFloat(entity.power_factor))}%</span>` : ``}
 						</div>
 						<div style="height: 24px; display: flex; align-items: center; justify-content: center">
+							<div class="primary" style="margin-right: 4px">${entity.label_leading}</div>
 							<div style="width: 24px; height: 24px;">
-								<ha-icon icon="mdi:transmission-tower"></ha-icon>
+								<ha-icon icon="${entity.icon_leading}"></ha-icon>
 							</div>
 							<div class="lines" style="flex: 1; height: 10px; box-sizing: border-box; margin: 0 8px">
 								<svg preserveAspectRatio="xMaxYMid slice"
@@ -106,16 +102,17 @@ class EnergyOverviewCard extends LitElement {
 									<circle class="grid" r="1"
 									        style="stroke-width: 4; stroke: var(--energy-line-color); fill: var(--energy-line-color);"
 									        vector-effect="non-scaling-stroke">
-										<animateMotion calcMode="linear" dur="${animationSpeed}s" repeatCount="indefinite">
+										<animateMotion calcMode="linear" dur="${animationSpeed}s"
+										               repeatCount="indefinite">
 											<mpath xlink:href="#grid"></mpath>
 										</animateMotion>
 									</circle>
 								</svg>
 							</div>
 							<div style="width: 24px; height: 24px;">
-								<ha-icon icon="mdi:home-lightning-bolt"></ha-icon>
+								<ha-icon icon="${entity.icon_trailing}"></ha-icon>
 							</div>
-							<div class="primary" style="margin-left: 4px">${point.name}</div>
+							<div class="primary" style="margin-left: 4px">${entity.label_trailing}</div>
 						</div>
 					</div>`;
 			})}
