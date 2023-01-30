@@ -11,14 +11,24 @@ A simple card that shows your current energy usage.
 
 [!["Buy Me A Coffee"](https://buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/seseschneider)
 
+**Features:**
+
+- Variable amount of monitoring entities
+- Voltage, Current, Power, and Power Factor display
+- Adjustable colors, labels and icons
+- Configurable dynamic animations adapting to power usage
+
+*Three-phase power monitoring example:*
+
 ![](.github/assets/card.gif)
 
 ## Options
 
-| Name     | Type               | Requirement  | Description                        | Default |
-|----------|--------------------|--------------|------------------------------------|---------|
-| type     | string             | **Required** | `custom:energy-overview-card`      |         |
-| entities | Array<PowerEntity> | **Required** | List of power entities (see below) |         |
+| Name      | Type               | Requirement  | Description                         | Default |
+|-----------|--------------------|--------------|-------------------------------------|---------|
+| type      | string             | **Required** | `custom:energy-overview-card`       |         |
+| entities  | Array<PowerEntity> | **Required** | List of power entities (see below)  |         |
+| animation | AnimationConfig    | *Optional*   | Animation configuration (see below) |         |
 
 #### PowerEntity
 
@@ -33,6 +43,14 @@ A simple card that shows your current energy usage.
 | icon_leading   | string       | *Optional*   | Leading MD icon               | `mdi:transmission-tower`               |
 | icon_trailing  | string       | *Optional*   | Trailing MD icon              | `mdi:home-lightning-bolt`              |
 | color          | string       | *Optional*   | CSS color                     | `var(--energy-grid-consumption-color)` |
+
+#### AnimationConfig
+
+| Name         | Type   | Requirement | Description                                                        | Default |
+|--------------|--------|-------------|--------------------------------------------------------------------|---------|
+| power        | number | *Optional*  | Wattage level at which the animation runs at `min_duration` speed. | 1000    |
+| min_duration | number | *Optional*  | Minimum duration of the animation at `>= power W`                  | 1       |
+| max_duration | number | *Optional*  | Maximum duration of the animation at `> 0W`.                       | 10      |
 
 ### Example configuration
 
@@ -60,6 +78,10 @@ entities:
     label_leading: P
     label_trailing: C
     color: '#b1f2ff'
+animation:
+  power: 1000
+  min_duration: 1
+  max_duration: 10
 ```
 
 ## Install

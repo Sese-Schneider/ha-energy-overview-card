@@ -1,7 +1,10 @@
+// noinspection JSUnusedGlobalSymbols
+
 import {css, CSSResultGroup, html, LitElement, TemplateResult} from "lit";
 import {customElement, property} from "lit/decorators";
 import {HomeAssistant} from "custom-card-helpers";
 import {EnergyOverviewConfig, EnergyOverviewEntity} from "./types";
+import clamp from "./util";
 
 @customElement("energy-overview-card")
 class EnergyOverviewCard extends LitElement {
@@ -65,12 +68,21 @@ class EnergyOverviewCard extends LitElement {
       });
     });
 
+    const {animation} = this._config;
+    const min = animation?.min_duration ? animation.min_duration : 1;
+    const max = animation?.max_duration ? animation.max_duration : 10;
+    const power = animation?.power ? animation.power : 1000;
+
     return html`
 		<ha-card .header="Energy Overview">
 			${entities.map((entity) => {
-				console.log(entity);
-				const power = parseInt(entity.power, 10);
-				const animationSpeed = -0.004 * Math.min(power, 1000) + 5;
+				// a linear function which is max at x=0 and min at x=power is defined by:
+				// f(x) = (-(max-min)/power) * x + max
+				const x = parseInt(entity.power, 10);
+				const y = (-(max - min) / power) * x + max;
+				let animationSpeed: number;
+				animationSpeed = clamp(y, min, max);
+				if (animationSpeed === max) animationSpeed = 0;
 
 				return html`
 					<!--suppress CssUnresolvedCustomProperty -->
@@ -80,12 +92,14 @@ class EnergyOverviewCard extends LitElement {
 							${entity.current || entity.voltage ? html`
 									<div style="display: flex; justify-content: center; align-items: center">
 										${entity.voltage ? html`<span class="secondary">${entity.voltage}V</span>` : ``}
-										${entity.current && entity.voltage ? html`<div style="width: 8px"></div>` : ``}
+										${entity.current && entity.voltage ? html`
+											<div style="width: 8px"></div>` : ``}
 										${entity.current ? html`<span class="secondary">${entity.current}A</span>` : ``}
 									</div>`
 								: ``}
 							<span class="secondary">${entity.power}W</span>
-							${entity.power_factor ? html`<span class="secondary">${Math.round(parseFloat(entity.power_factor))}%</span>` : ``}
+							${entity.power_factor ? html`<span
+								class="secondary">${Math.round(parseFloat(entity.power_factor))}%</span>` : ``}
 						</div>
 						<div style="height: 24px; display: flex; align-items: center; justify-content: center">
 							<div class="primary" style="margin-right: 4px">${entity.label_leading}</div>
@@ -93,7 +107,7 @@ class EnergyOverviewCard extends LitElement {
 								<ha-icon icon="${entity.icon_leading}"></ha-icon>
 							</div>
 							<div class="lines" style="flex: 1; height: 10px; box-sizing: border-box; margin: 0 8px">
-								<svg preserveAspectRatio="xMaxYMid slice"
+								<svg preserveAspectRatio="xMaxYMid slice" overflow="visible"
 								     style="width: 100%; height: 15px" viewBox="0 0 100 10"
 								     xmlns="http://www.w3.org/2000/svg">
 									<path class="grid" d="M0,5 H100" id="grid"

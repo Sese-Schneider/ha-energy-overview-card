@@ -10,8 +10,14 @@ export interface EnergyOverviewEntity {
   color?: string;
 }
 
+export interface EnergyOverviewAnimation {
+  min_duration?: number;
+  max_duration?: number;
+  power?: number;
+}
+
 export interface EnergyOverviewConfig {
   type: string;
-
   entities: Array<EnergyOverviewEntity>;
+  animation?: EnergyOverviewAnimation;
 }
