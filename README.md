@@ -4,7 +4,7 @@ A simple card that shows your current energy usage.
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 [![GitHub Release][releases-shield]][releases]
-[![License][license-shield]](LICENSE.md)
+[![License][license-shield]](LICENSE)
 
 ![Project Maintenance][maintenance-shield]
 [![GitHub Activity][commits-shield]][commits]
@@ -49,8 +49,8 @@ A simple card that shows your current energy usage.
 | Name         | Type   | Requirement | Description                                                        | Default |
 |--------------|--------|-------------|--------------------------------------------------------------------|---------|
 | power        | number | *Optional*  | Wattage level at which the animation runs at `min_duration` speed. | 1000    |
-| min_duration | number | *Optional*  | Minimum duration of the animation at `>= power W`                  | 1       |
-| max_duration | number | *Optional*  | Maximum duration of the animation at `> 0W`.                       | 10      |
+| min_duration | number | *Optional*  | Minimum duration of the animation at `>= power W`.                 | 1       |
+| max_duration | number | *Optional*  | Maximum duration of the animation at `> 0 W`.                      | 10      |
 
 ### Example configuration
 
@@ -61,22 +61,24 @@ entities:
     current: sensor.a_c
     voltage: sensor.a_v
     power_factor: sensor.a_pf
-    label_leading: P
-    label_trailing: A
+    label_leading: 'P'
+    label_trailing: 'A'
+    icon_leading: 'mdi:transmission-tower'
+    icon_trailing: 'mdi:home-lightning-bolt'
     color: '#488fc2'
   - power: sensor.b_p
     current: sensor.b_c
     voltage: sensor.b_v
     power_factor: sensor.b_pf
-    label_leading: P
-    label_trailing: B
+    label_leading: 'P'
+    label_trailing: 'B'
     color: '#7dbff5'
   - power: sensor.c_p
     current: sensor.c_c
     voltage: sensor.c_v
     power_factor: sensor.c_pf
-    label_leading: P
-    label_trailing: C
+    label_leading: 'P'
+    label_trailing: 'C'
     color: '#b1f2ff'
 animation:
   power: 1000
@@ -88,26 +90,25 @@ animation:
 
 ### HACS
 
-*This repo can be installed as a custom repository in HACS*
+*This repo can be installed as a custom repository in HACS.*
 
-- Go to HACS → Frontend
-- Click on the three-dot-menu → Custom repositories
-- Add `Sese-Schneider/ha-energy-overview-card` as Lovelace
-- Use the FAB "Explore and download repositories" to search "Energy Overview Card"
+* Go to HACS → Frontend
+* Click on the three-dot-menu → Custom repositories
+* Add `Sese-Schneider/ha-energy-overview-card` as Lovelace.
+* Use the FAB "Explore and download repositories" to search "Energy Overview Card".
 
 ### Simple install
 
-1. Download and copy `energy-overview-card.js` from the
+* Download and copy `energy-overview-card.js` from the
    latest [release](https://github.com/Sese-Schneider/ha-energy-overview-card/releases/latest) into your `config/www`
    directory.
+* Add a reference to `energy-overview-card.js` inside your `ui-lovelace.yaml`.
 
-2. Add a reference to `energy-overview-card.js` inside your `ui-lovelace.yaml`.
-
-  ```yaml
-  resources:
-    - url: /local/energy-overview-card.js
-      type: module
-  ```
+```yaml
+resources:
+ - url: /local/energy-overview-card.js
+   type: module
+```
 
 [Troubleshooting](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins)
 
