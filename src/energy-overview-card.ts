@@ -79,7 +79,8 @@ class EnergyOverviewCard extends LitElement {
 				// a linear function which is max at x=0 and min at x=power is defined by:
 				// f(x) = (-(max-min)/power) * x + max
 				const x = parseInt(entity.power, 10);
-				const y = (-(max - min) / power) * x + max;
+				const isNegative = x < 0;
+				const y = (-(max - min) / power) * Math.abs(x) + max;
 				let animationSpeed: number;
 				animationSpeed = clamp(y, min, max);
 				if (animationSpeed === max) animationSpeed = 0;
@@ -116,8 +117,8 @@ class EnergyOverviewCard extends LitElement {
 									<circle class="grid" r="1"
 									        style="stroke-width: 4; stroke: var(--energy-line-color); fill: var(--energy-line-color);"
 									        vector-effect="non-scaling-stroke">
-										<animateMotion calcMode="linear" dur="${animationSpeed}s"
-										               repeatCount="indefinite">
+										<animateMotion calcMode="linear" dur="${animationSpeed}s" repeatCount="indefinite"
+										               keyTimes="0;1" keyPoints="${isNegative ? `1;0` : `0;1`}">
 											<mpath xlink:href="#grid"></mpath>
 										</animateMotion>
 									</circle>
