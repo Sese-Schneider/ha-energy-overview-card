@@ -4,8 +4,9 @@ A simple card that shows your current energy usage.
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 [![GitHub Release][releases-shield]][releases]
-[![License][license-shield]](LICENSE)
+![GitHub Downloads][downloads-shield]
 
+[![License][license-shield]](LICENSE)
 ![Project Maintenance][maintenance-shield]
 [![GitHub Activity][commits-shield]][commits]
 
@@ -113,13 +114,9 @@ resources:
 [Troubleshooting](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins)
 
 [commits-shield]: https://img.shields.io/github/commit-activity/y/Sese-Schneider/ha-energy-overview-card.svg?style=for-the-badge
-
+[downloads-shield]: https://img.shields.io/github/downloads/Sese-Schneider/ha-energy-overview-card/total.svg?style=for-the-badge
 [commits]: https://github.com/Sese-Schneider/ha-energy-overview-card/commits/master
-
 [license-shield]: https://img.shields.io/github/license/Sese-Schneider/ha-energy-overview-card.svg?style=for-the-badge
-
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2023.svg?style=for-the-badge
-
 [releases-shield]: https://img.shields.io/github/release/Sese-Schneider/ha-energy-overview-card.svg?style=for-the-badge
-
 [releases]: https://github.com/Sese-Schneider/ha-energy-overview-card/releases
