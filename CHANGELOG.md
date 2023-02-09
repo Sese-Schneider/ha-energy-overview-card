@@ -1,3 +1,17 @@
+## [2.1.0](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v2.0.1...v2.1.0) (2023-02-09)
+
+
+### Features
+
+* Per entity animation configuration overwrite ([3ac9136](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/3ac913634425079748dd2dfa0c72a66fd37b30e2))
+* Unique CSS classes everywhere for customizing ([cacad94](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/cacad9478af0895a473092d65b4ea06a0e557c1b))
+
+
+### Documentation
+
+* Add downloads badge ([337fdcc](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/337fdccdca2ea57b96b1a1bc2bb7dfc562348ae0))
+* Update license ([7186bd6](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/7186bd68474356b5e1a34ecf07305f0da68d307e))
+
 ## [2.0.1](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v2.0.0...v2.0.1) (2023-01-31)
 
 
