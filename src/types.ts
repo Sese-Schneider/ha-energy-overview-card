@@ -1,3 +1,9 @@
+export interface EnergyOverviewAnimation {
+  min_duration?: number;
+  max_duration?: number;
+  power?: number;
+}
+
 export interface EnergyOverviewEntity {
   power: string;
   current?: string;
@@ -8,12 +14,7 @@ export interface EnergyOverviewEntity {
   icon_trailing?: string;
   icon_leading?: string;
   color?: string;
-}
-
-export interface EnergyOverviewAnimation {
-  min_duration?: number;
-  max_duration?: number;
-  power?: number;
+  animation?: EnergyOverviewAnimation;
 }
 
 export interface EnergyOverviewConfig {

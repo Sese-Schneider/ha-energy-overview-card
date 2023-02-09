@@ -65,17 +65,17 @@ class EnergyOverviewCard extends LitElement {
         label_leading: entity.label_leading ? entity.label_leading : '',
         icon_trailing: entity.icon_trailing ? entity.icon_trailing : 'mdi:home-lightning-bolt',
         icon_leading: entity.icon_leading ? entity.icon_leading : 'mdi:transmission-tower',
+        animation: entity.animation ?? this._config?.animation,
       });
     });
 
-    const {animation} = this._config;
-    const min = animation?.min_duration ? animation.min_duration : 1;
-    const max = animation?.max_duration ? animation.max_duration : 10;
-    const power = animation?.power ? animation.power : 1000;
-
     return html`
 		<ha-card .header="Energy Overview">
-			${entities.map((entity) => {
+			${entities.map((entity, i) => {
+				const {animation} = entity;
+				const min = animation?.min_duration ? animation.min_duration : 1;
+				const max = animation?.max_duration ? animation.max_duration : 10;
+				const power = animation?.power ? animation.power : 1000;
 				// a linear function which is max at x=0 and min at x=power is defined by:
 				// f(x) = (-(max-min)/power) * x + max
 				const x = parseInt(entity.power, 10);

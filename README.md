@@ -33,25 +33,26 @@ A simple card that shows your current energy usage.
 
 #### PowerEntity
 
-| Name           | Type         | Requirement  | Description                   | Default                                |
-|----------------|--------------|--------------|-------------------------------|----------------------------------------|
-| power          | state entity | **Required** | State entity for power        |                                        |
-| current        | state entity | *Optional*   | State entity for current      |                                        |
-| voltage        | state entity | *Optional*   | State entity for voltage      |                                        |
-| power_factor   | state entity | *Optional*   | State entity for power_factor |                                        |
-| label_leading  | string       | *Optional*   | Leading label                 |                                        |
-| label_trailing | string       | *Optional*   | Trailing label                |                                        |
-| icon_leading   | string       | *Optional*   | Leading MD icon               | `mdi:transmission-tower`               |
-| icon_trailing  | string       | *Optional*   | Trailing MD icon              | `mdi:home-lightning-bolt`              |
-| color          | string       | *Optional*   | CSS color                     | `var(--energy-grid-consumption-color)` |
+| Name           | Type            | Requirement  | Description                        | Default                                |
+|----------------|-----------------|--------------|------------------------------------|----------------------------------------|
+| power          | state entity    | **Required** | State entity for power             |                                        |
+| current        | state entity    | *Optional*   | State entity for current           |                                        |
+| voltage        | state entity    | *Optional*   | State entity for voltage           |                                        |
+| power_factor   | state entity    | *Optional*   | State entity for power_factor      |                                        |
+| label_leading  | string          | *Optional*   | Leading label                      |                                        |
+| label_trailing | string          | *Optional*   | Trailing label                     |                                        |
+| icon_leading   | string          | *Optional*   | Leading MD icon                    | `mdi:transmission-tower`               |
+| icon_trailing  | string          | *Optional*   | Trailing MD icon                   | `mdi:home-lightning-bolt`              |
+| color          | string          | *Optional*   | CSS color                          | `var(--energy-grid-consumption-color)` |
+| animation      | AnimationConfig | *Optional*   | Overwrite for the global animation |                                        |
 
 #### AnimationConfig
 
-| Name         | Type   | Requirement | Description                                                        | Default |
-|--------------|--------|-------------|--------------------------------------------------------------------|---------|
-| power        | number | *Optional*  | Wattage level at which the animation runs at `min_duration` speed. | 1000    |
-| min_duration | number | *Optional*  | Minimum duration of the animation at `>= power W`.                 | 1       |
-| max_duration | number | *Optional*  | Maximum duration of the animation at `> 0 W`.                      | 10      |
+| Name         | Type   | Requirement | Description                                                       | Default |
+|--------------|--------|-------------|-------------------------------------------------------------------|---------|
+| power        | number | *Optional*  | Wattage level at which the animation runs at `min_duration` speed | 1000    |
+| min_duration | number | *Optional*  | Minimum duration of the animation at `>= power W`                 | 1       |
+| max_duration | number | *Optional*  | Maximum duration of the animation at `> 0 W`                      | 10      |
 
 ### Example configuration
 
@@ -74,6 +75,10 @@ entities:
     label_leading: 'P'
     label_trailing: 'B'
     color: '#7dbff5'
+    animation:
+      power: 100
+      min_duration: 2
+      max_duration: 5
   - power: sensor.c_p
     current: sensor.c_c
     voltage: sensor.c_v
