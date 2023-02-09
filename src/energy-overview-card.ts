@@ -31,6 +31,73 @@ class EnergyOverviewCard extends LitElement {
         overflow: hidden;
         white-space: nowrap;
       }
+
+      .entity {
+        max-width: 492px;
+        padding: 8px;
+        margin: 0 auto;
+      }
+
+      .metadata {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        margin-bottom: -8px;
+      }
+
+      .metadata-left {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .divider {
+        width: 8px;
+      }
+
+      .main {
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .label-leading {
+        margin-right: 4px;
+      }
+
+      .label-trailing {
+        margin-left: 4px;
+      }
+
+      .icon {
+        width: 24px;
+        height: 24px;
+      }
+
+      .line {
+        flex: 1;
+        height: 10px;
+        box-sizing: border-box;
+        margin: 0 8px;
+      }
+
+      .line svg {
+        width: 100%;
+        height: 15px;
+      }
+
+      .line svg path {
+        stroke-width: 1;
+        fill: none;
+        stroke: var(--energy-line-color);
+      }
+
+      .line svg circle {
+        stroke-width: 4;
+        stroke: var(--energy-line-color);
+        fill: var(--energy-line-color);
+      }
     `;
   }
 
@@ -87,47 +154,54 @@ class EnergyOverviewCard extends LitElement {
 
 				return html`
 					<!--suppress CssUnresolvedCustomProperty -->
-					<div style="--energy-line-color: ${entity.color}; max-width: 492px; padding: 8px">
-						<div
-							style="display: flex; justify-content: space-evenly; align-items: center; margin-bottom: -8px;">
+					<div class="entity entity-${i}"
+					     style="--energy-line-color: ${entity.color};">
+						<div class="metadata">
 							${entity.current || entity.voltage ? html`
-									<div style="display: flex; justify-content: center; align-items: center">
-										${entity.voltage ? html`<span class="secondary">${entity.voltage}V</span>` : ``}
+									<div class="metadata-left">
+										${entity.voltage ? html`<span class="secondary voltage">${entity.voltage}</span>
+										<span class="secondary voltage-unit">V</span>` : ``}
 										${entity.current && entity.voltage ? html`
-											<div style="width: 8px"></div>` : ``}
-										${entity.current ? html`<span class="secondary">${entity.current}A</span>` : ``}
+											<div class="divider"></div>` : ``}
+										${entity.current ? html`<span class="secondary current">${entity.current}</span>
+										<span class="secondary current-unit">A</span>` : ``}
 									</div>`
 								: ``}
-							<span class="secondary">${entity.power}W</span>
-							${entity.power_factor ? html`<span
-								class="secondary">${Math.round(parseFloat(entity.power_factor))}%</span>` : ``}
+							<div class="metadata-center">
+								<span class="secondary power">${entity.power}</span>
+								<span class="secondary power-unit">W</span>
+							</div>
+							${entity.power_factor ? html`
+								<div class="metadata-right">
+									<span
+					  class="secondary power-factor">${Math.round(parseFloat(entity.power_factor))}</span>
+									<span class="secondary power-factor-unit">%</span>
+								</div>` : ``}
 						</div>
-						<div style="height: 24px; display: flex; align-items: center; justify-content: center">
-							<div class="primary" style="margin-right: 4px">${entity.label_leading}</div>
-							<div style="width: 24px; height: 24px;">
+						<div class="main">
+							<div class="primary label label-leading">${entity.label_leading}</div>
+							<div class="icon icon-leading">
 								<ha-icon icon="${entity.icon_leading}"></ha-icon>
 							</div>
-							<div class="lines" style="flex: 1; height: 10px; box-sizing: border-box; margin: 0 8px">
-								<svg preserveAspectRatio="xMaxYMid slice" overflow="visible"
-								     style="width: 100%; height: 15px" viewBox="0 0 100 10"
-								     xmlns="http://www.w3.org/2000/svg">
+							<div class="line">
+								<svg overflow="visible" preserveAspectRatio="xMaxYMid slice"
+								     viewBox="0 0 100 10" xmlns="http://www.w3.org/2000/svg">
 									<path class="grid" d="M0,5 H100" id="grid"
-									      style="stroke-width: 1; fill: none; stroke: var(--energy-line-color);"
 									      vector-effect="non-scaling-stroke"></path>
 									<circle class="grid" r="1"
-									        style="stroke-width: 4; stroke: var(--energy-line-color); fill: var(--energy-line-color);"
 									        vector-effect="non-scaling-stroke">
-										<animateMotion calcMode="linear" dur="${animationSpeed}s" repeatCount="indefinite"
-										               keyTimes="0;1" keyPoints="${isNegative ? `1;0` : `0;1`}">
+										<animateMotion keyTimes="0;1" keyPoints="${isNegative ? `1;0` : `0;1`}"
+										               calcMode="linear" dur="${animationSpeed}s"
+										               repeatCount="indefinite">
 											<mpath xlink:href="#grid"></mpath>
 										</animateMotion>
 									</circle>
 								</svg>
 							</div>
-							<div style="width: 24px; height: 24px;">
+							<div class="icon icon-trailing">
 								<ha-icon icon="${entity.icon_trailing}"></ha-icon>
 							</div>
-							<div class="primary" style="margin-left: 4px">${entity.label_trailing}</div>
+							<div class="primary label label-trailing">${entity.label_trailing}</div>
 						</div>
 					</div>`;
 			})}
