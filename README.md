@@ -2,7 +2,7 @@
 
 A simple card that shows your current energy usage.
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Sese-Schneider&repository=ha-energy-overview-card&category=frontend)
 [![GitHub Release][releases-shield]][releases]
 ![GitHub Downloads][downloads-shield]
 
@@ -96,32 +96,41 @@ animation:
 
 ### HACS
 
-*This repo can be installed as a custom repository in HACS.*
+*This repo is available for install through the HACS.*
 
 * Go to HACS → Frontend
-* Click on the three-dot-menu → Custom repositories
-* Add `Sese-Schneider/ha-energy-overview-card` as Lovelace.
 * Use the FAB "Explore and download repositories" to search "Energy Overview Card".
+
+_or_
+
+Click here:
+
+[![](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Sese-Schneider&repository=ha-energy-overview-card&category=frontend)
+
 
 ### Simple install
 
 * Download and copy `energy-overview-card.js` from the
-   latest [release](https://github.com/Sese-Schneider/ha-energy-overview-card/releases/latest) into your `config/www`
-   directory.
-* Add a reference to `energy-overview-card.js` inside your `ui-lovelace.yaml`.
+  latest [release](https://github.com/Sese-Schneider/ha-energy-overview-card/releases/latest) into your `config/www`
+  directory.
+* Add a reference to `energy-overview-card.js` as JavaScript-Module to your Lovelace dashboard via "Manage Resources". (
+  Note: You have to enable advanced mode)
 
-```yaml
-resources:
- - url: /local/energy-overview-card.js
-   type: module
-```
 
 [Troubleshooting](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins)
 
+
+
 [commits-shield]: https://img.shields.io/github/commit-activity/y/Sese-Schneider/ha-energy-overview-card.svg?style=for-the-badge
+
 [downloads-shield]: https://img.shields.io/github/downloads/Sese-Schneider/ha-energy-overview-card/total.svg?style=for-the-badge
+
 [commits]: https://github.com/Sese-Schneider/ha-energy-overview-card/commits/main
+
 [license-shield]: https://img.shields.io/github/license/Sese-Schneider/ha-energy-overview-card.svg?style=for-the-badge
+
 [maintenance-shield]: https://img.shields.io/maintenance/yes/2023.svg?style=for-the-badge
+
 [releases-shield]: https://img.shields.io/github/release/Sese-Schneider/ha-energy-overview-card.svg?style=for-the-badge
+
 [releases]: https://github.com/Sese-Schneider/ha-energy-overview-card/releases
