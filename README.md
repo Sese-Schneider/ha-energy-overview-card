@@ -38,6 +38,7 @@ A simple card that shows your current energy usage.
 | power          | state entity    | **Required** | State entity for power             |                                        |
 | current        | state entity    | *Optional*   | State entity for current           |                                        |
 | voltage        | state entity    | *Optional*   | State entity for voltage           |                                        |
+| frequency      | state entity    | *Optional*   | State entity for frequency         |                                        |
 | power_factor   | state entity    | *Optional*   | State entity for power_factor      |                                        |
 | label_leading  | string          | *Optional*   | Leading label                      |                                        |
 | label_trailing | string          | *Optional*   | Trailing label                     |                                        |
@@ -82,6 +83,7 @@ entities:
   - power: sensor.c_p
     current: sensor.c_c
     voltage: sensor.c_v
+    frequency: sensor.c_fq
     power_factor: sensor.c_pf
     label_leading: 'P'
     label_trailing: 'C'

@@ -8,6 +8,7 @@ export interface EnergyOverviewEntity {
   power: string;
   current?: string;
   voltage?: string;
+  frequency?: string;
   power_factor?: string;
   label_trailing?: string;
   label_leading?: string;

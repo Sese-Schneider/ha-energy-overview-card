@@ -2,9 +2,10 @@
 
 import {css, CSSResultGroup, html, LitElement, TemplateResult} from "lit";
 import {customElement, property} from "lit/decorators";
+import {unsafeHTML} from 'lit/directives/unsafe-html.js';
 import {HomeAssistant} from "custom-card-helpers";
 import {EnergyOverviewConfig, EnergyOverviewEntity} from "./types";
-import clamp from "./util";
+import clamp, {intersperse} from "./util";
 
 @customElement("energy-overview-card")
 class EnergyOverviewCard extends LitElement {
@@ -126,6 +127,7 @@ class EnergyOverviewCard extends LitElement {
         power: states[entity.power].state,
         current: entity.current ? states[entity.current].state : undefined,
         voltage: entity.voltage ? states[entity.voltage].state : undefined,
+        frequency: entity.frequency ? states[entity.frequency].state : undefined,
         power_factor: entity.power_factor ? states[entity.power_factor].state : undefined,
         color: entity.color ? entity.color : 'var(--energy-grid-consumption-color)',
         label_trailing: entity.label_trailing ? entity.label_trailing : '',
@@ -157,26 +159,36 @@ class EnergyOverviewCard extends LitElement {
 					<div class="entity entity-${i}"
 					     style="--energy-line-color: ${entity.color};">
 						<div class="metadata">
-							${entity.current || entity.voltage ? html`
+							${entity.current || entity.voltage || entity.frequency ? html`
 									<div class="metadata-left">
-										${entity.voltage ? html`<span class="secondary voltage">${entity.voltage}</span>
-										<span class="secondary voltage-unit">V</span>` : ``}
-										${entity.current && entity.voltage ? html`
-											<div class="divider"></div>` : ``}
-										${entity.current ? html`<span class="secondary current">${entity.current}</span>
-										<span class="secondary current-unit">A</span>` : ``}
+										${unsafeHTML((() => {
+											const elements: Array<String> = [];
+											if (entity.voltage) {
+												elements.push(`<span class="secondary voltage">${entity.voltage}</span>&nbsp;<span class="secondary voltage-unit">V</span>`);
+											}
+											if (entity.current) {
+												elements.push(`<span class="secondary current">${entity.current}</span>&nbsp;<span class="secondary current-unit">A</span>`);
+											}
+											if (entity.frequency) {
+												elements.push(`<span class="secondary frequency">${entity.frequency}</span>&nbsp;<span class="secondary frequency-unit">Hz</span>`);
+											}
+
+											return intersperse(
+												elements,
+												`<div class="divider"></div>`,
+											);
+										})().join(''))}
 									</div>`
 								: ``}
 							<div class="metadata-center">
-								<span class="secondary power">${entity.power}</span>
-								<span class="secondary power-unit">W</span>
+								<span class="secondary power">${entity.power}</span>&nbsp;<span
+								class="secondary power-unit">W</span>
 							</div>
 							${entity.power_factor ? html`
 								<div class="metadata-right">
 									<span
-					  class="secondary power-factor">${Math.round(parseFloat(entity.power_factor))}</span>
-									<span class="secondary power-factor-unit">%</span>
-								</div>` : ``}
+					  class="secondary power-factor">${Math.round(parseFloat(entity.power_factor))}</span>&nbsp;<span
+									class="secondary power-factor-unit">%</span></div>` : ``}
 						</div>
 						<div class="main">
 							<div class="primary label label-leading">${entity.label_leading}</div>
