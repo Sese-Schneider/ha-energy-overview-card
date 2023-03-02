@@ -4,8 +4,9 @@ import {css, CSSResultGroup, html, LitElement, TemplateResult} from "lit";
 import {customElement, property} from "lit/decorators";
 import {unsafeHTML} from 'lit/directives/unsafe-html.js';
 import {HomeAssistant} from "custom-card-helpers";
-import {EnergyOverviewConfig, EnergyOverviewEntity} from "./types";
+import {EnergyOverviewConfig, EnergyOverviewEntityUI} from "./types";
 import clamp, {intersperse} from "./util";
+import {PERCENTAGE, UnitOfElectricCurrent, UnitOfElectricPotential, UnitOfFrequency, UnitOfPower} from "./const";
 
 @customElement("energy-overview-card")
 class EnergyOverviewCard extends LitElement {
@@ -53,7 +54,7 @@ class EnergyOverviewCard extends LitElement {
       }
 
       .divider {
-        width: 8px;
+        width: 12px;
       }
 
       .main {
@@ -121,14 +122,19 @@ class EnergyOverviewCard extends LitElement {
     }
     const {states} = this.hass;
 
-    const entities: Array<EnergyOverviewEntity> = [];
+    const entities: Array<EnergyOverviewEntityUI> = [];
     this._config.entities.forEach((entity) => {
       entities.push({
         power: states[entity.power].state,
+        power_unit: this._extractUnit(entity.power, UnitOfPower.WATT),
         current: entity.current ? states[entity.current].state : undefined,
+        current_unit: this._extractUnit(entity.current, UnitOfElectricCurrent.AMPERE),
         voltage: entity.voltage ? states[entity.voltage].state : undefined,
+        voltage_unit: this._extractUnit(entity.voltage, UnitOfElectricPotential.VOLT),
         frequency: entity.frequency ? states[entity.frequency].state : undefined,
+        frequency_unit: this._extractUnit(entity.frequency, UnitOfFrequency.HERTZ),
         power_factor: entity.power_factor ? states[entity.power_factor].state : undefined,
+        power_factor_unit: this._extractUnit(entity.power_factor, ''),
         color: entity.color ? entity.color : 'var(--energy-grid-consumption-color)',
         label_trailing: entity.label_trailing ? entity.label_trailing : '',
         label_leading: entity.label_leading ? entity.label_leading : '',
@@ -141,18 +147,43 @@ class EnergyOverviewCard extends LitElement {
     return html`
 		<ha-card .header="Energy Overview">
 			${entities.map((entity, i) => {
+				/* Power calculation */
+				let power: number;
+				switch (entity.power_unit) {
+					case UnitOfPower.KILO_WATT:
+						power = 1000 * parseFloat(entity.power);
+						break;
+					case UnitOfPower.BTU_PER_HOUR:
+						power = 0.29307107 * parseFloat(entity.power);
+						break;
+					case UnitOfPower.WATT:
+					default:
+						power = parseFloat(entity.power);
+						break;
+				}
+
+				/* Power factor calculation */
+				const powerFactor = entity.power_factor ? (() => {
+					const pf = parseFloat(entity.power_factor);
+					if (entity.power_factor_unit === PERCENTAGE) return pf;
+					// power factor is realistically never at 1%, we can safely assume it's a percentage
+					if (pf >= -1 && pf <= 1) return pf * 100;
+					return pf;
+				})() : undefined;
+
+				/* Animation */
 				const {animation} = entity;
-				const min = animation?.min_duration ? animation.min_duration : 1;
-				const max = animation?.max_duration ? animation.max_duration : 10;
-				const power = animation?.power ? animation.power : 1000;
+				const animMin = animation?.min_duration ? animation.min_duration : 1;
+				const animMax = animation?.max_duration ? animation.max_duration : 10;
+				const animPower = animation?.power ? animation.power : 1000;
 				// a linear function which is max at x=0 and min at x=power is defined by:
 				// f(x) = (-(max-min)/power) * x + max
-				const x = parseInt(entity.power, 10);
+				const x = power;
 				const isNegative = x < 0;
-				const y = (-(max - min) / power) * Math.abs(x) + max;
+				const y = (-(animMax - animMin) / animPower) * Math.abs(x) + animMax;
 				let animationSpeed: number;
-				animationSpeed = clamp(y, min, max);
-				if (animationSpeed === max) animationSpeed = 0;
+				animationSpeed = clamp(y, animMin, animMax);
+				if (animationSpeed === animMax) animationSpeed = 0;
 
 				return html`
 					<!--suppress CssUnresolvedCustomProperty -->
@@ -164,13 +195,13 @@ class EnergyOverviewCard extends LitElement {
 										${unsafeHTML((() => {
 											const elements: Array<String> = [];
 											if (entity.voltage) {
-												elements.push(`<span class="secondary voltage">${entity.voltage}</span>&nbsp;<span class="secondary voltage-unit">V</span>`);
+												elements.push(`<span class="secondary voltage">${entity.voltage}</span>&nbsp;<span class="secondary voltage-unit">${entity.voltage_unit}</span>`);
 											}
 											if (entity.current) {
-												elements.push(`<span class="secondary current">${entity.current}</span>&nbsp;<span class="secondary current-unit">A</span>`);
+												elements.push(`<span class="secondary current">${entity.current}</span>&nbsp;<span class="secondary current-unit">${entity.current_unit}</span>`);
 											}
 											if (entity.frequency) {
-												elements.push(`<span class="secondary frequency">${entity.frequency}</span>&nbsp;<span class="secondary frequency-unit">Hz</span>`);
+												elements.push(`<span class="secondary frequency">${entity.frequency}</span>&nbsp;<span class="secondary frequency-unit">${entity.frequency_unit}</span>`);
 											}
 
 											return intersperse(
@@ -182,13 +213,12 @@ class EnergyOverviewCard extends LitElement {
 								: ``}
 							<div class="metadata-center">
 								<span class="secondary power">${entity.power}</span>&nbsp;<span
-								class="secondary power-unit">W</span>
+								class="secondary power-unit">${entity.power_unit}</span>
 							</div>
-							${entity.power_factor ? html`
+							${powerFactor ? html`
 								<div class="metadata-right">
-									<span
-					  class="secondary power-factor">${Math.round(parseFloat(entity.power_factor))}</span>&nbsp;<span
-									class="secondary power-factor-unit">%</span></div>` : ``}
+									<span class="secondary power-factor">${Math.round(powerFactor)}</span>&nbsp;<span
+									class="secondary power-factor-unit">${PERCENTAGE}</span></div>` : ``}
 						</div>
 						<div class="main">
 							<div class="primary label label-leading">${entity.label_leading}</div>
@@ -219,5 +249,9 @@ class EnergyOverviewCard extends LitElement {
 			})}
 		</ha-card>
     `;
+  }
+
+  private _extractUnit(entity: string | undefined, fallback: string) {
+    return entity ? this.hass!.states[entity].attributes.unit_of_measurement ?? fallback : fallback;
   }
 }

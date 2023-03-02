@@ -10,6 +10,7 @@
     "import/extensions": "off",
     "import/no-unresolved": "off",
     "indent": "off",
+    "no-shadow": "off",
     "no-tabs": "off",
     "no-underscore-dangle": "off",
     "no-unused-vars": "off",

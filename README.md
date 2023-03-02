@@ -1,6 +1,6 @@
 # Energy Overview Card by [@Sese-Schneider](https://www.github.com/Sese-Schneider)
 
-A simple card that shows your current energy usage.
+A simple card which displays energy usage details of one or multiple entities.
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Sese-Schneider&repository=ha-energy-overview-card&category=frontend)
 [![GitHub Release][releases-shield]][releases]
@@ -15,7 +15,8 @@ A simple card that shows your current energy usage.
 **Features:**
 
 - Variable amount of monitoring entities
-- Voltage, Current, Power, and Power Factor display
+- Voltage, Current, Power, Frequency and Power Factor display
+- Automatic unit of measurement detection
 - Adjustable colors, labels and icons
 - Configurable dynamic animations adapting to power usage
 
@@ -65,7 +66,7 @@ entities:
     voltage: sensor.a_v
     power_factor: sensor.a_pf
     label_leading: 'P'
-    label_trailing: 'A'
+    label_trailing: 'L1'
     icon_leading: 'mdi:transmission-tower'
     icon_trailing: 'mdi:home-lightning-bolt'
     color: '#488fc2'
@@ -74,7 +75,7 @@ entities:
     voltage: sensor.b_v
     power_factor: sensor.b_pf
     label_leading: 'P'
-    label_trailing: 'B'
+    label_trailing: 'L2'
     color: '#7dbff5'
     animation:
       power: 100
@@ -86,7 +87,7 @@ entities:
     frequency: sensor.c_fq
     power_factor: sensor.c_pf
     label_leading: 'P'
-    label_trailing: 'C'
+    label_trailing: 'L3'
     color: '#b1f2ff'
 animation:
   power: 1000

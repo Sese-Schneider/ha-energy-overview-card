@@ -18,6 +18,14 @@ export interface EnergyOverviewEntity {
   animation?: EnergyOverviewAnimation;
 }
 
+export interface EnergyOverviewEntityUI extends EnergyOverviewEntity {
+  power_unit: string;
+  current_unit: string;
+  voltage_unit: string;
+  frequency_unit: string;
+  power_factor_unit: string;
+}
+
 export interface EnergyOverviewConfig {
   type: string;
   entities: Array<EnergyOverviewEntity>;
