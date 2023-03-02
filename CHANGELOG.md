@@ -1,3 +1,10 @@
+## [2.2.0-dev.2](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v2.2.0-dev.1...v2.2.0-dev.2) (2023-03-02)
+
+
+### Features
+
+* Automatic unit of measurement detection ([c666810](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/c66681098bc369cd0d0aa11062b0d4414d4e3fed))
+
 ## [2.2.0-dev.1](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v2.1.0...v2.2.0-dev.1) (2023-03-02)
 
 
