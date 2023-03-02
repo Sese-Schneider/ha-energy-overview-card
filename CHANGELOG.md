@@ -1,3 +1,16 @@
+## [2.2.0](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v2.1.0...v2.2.0) (2023-03-02)
+
+
+### Features
+
+* Add option to display frequency ([e08c6f4](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/e08c6f4a4b42acf83920bbc1b9b94d35cb79e9e6))
+* Automatic unit of measurement detection ([c666810](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/c66681098bc369cd0d0aa11062b0d4414d4e3fed))
+
+
+### Documentation
+
+* Add HACS Default badges ([e63e3f7](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/e63e3f778e6eec38ca00751740b8258d48244719))
+
 ## [2.2.0-dev.2](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v2.2.0-dev.1...v2.2.0-dev.2) (2023-03-02)
 
 
