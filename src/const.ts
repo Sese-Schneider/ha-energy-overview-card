@@ -1,3 +1,7 @@
+export const NAME = "Energy Overview";
+export const CARD_NAME = "energy-overview-card";
+export const CARD_EDITOR_NAME = `${CARD_NAME}-editor`;
+
 /* https://github.com/home-assistant/core/blob/dev/homeassistant/const.py#L482 */
 
 export enum UnitOfPower {

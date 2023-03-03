@@ -1,18 +1,28 @@
 // noinspection JSUnusedGlobalSymbols
 
 import {css, CSSResultGroup, html, LitElement, TemplateResult} from "lit";
-import {customElement, property} from "lit/decorators";
+import {customElement, property, state} from "lit/decorators";
 import {unsafeHTML} from 'lit/directives/unsafe-html.js';
 import {HomeAssistant} from "custom-card-helpers";
+import {version} from "../package.json";
 import {EnergyOverviewConfig, EnergyOverviewEntityUI} from "./types";
-import clamp, {intersperse} from "./util";
-import {PERCENTAGE, UnitOfElectricCurrent, UnitOfElectricPotential, UnitOfFrequency, UnitOfPower} from "./const";
+import {clamp, intersperse} from "./util";
+import {
+  CARD_EDITOR_NAME,
+  CARD_NAME,
+  NAME,
+  PERCENTAGE,
+  UnitOfElectricCurrent,
+  UnitOfElectricPotential,
+  UnitOfFrequency,
+  UnitOfPower,
+} from "./const";
 
-@customElement("energy-overview-card")
-class EnergyOverviewCard extends LitElement {
+@customElement(CARD_NAME)
+export class EnergyOverviewCard extends LitElement {
   @property() public hass?: HomeAssistant;
 
-  @property() private _config?: EnergyOverviewConfig;
+  @state() private _config?: EnergyOverviewConfig;
 
   static get styles(): CSSResultGroup {
     return css`
@@ -103,6 +113,17 @@ class EnergyOverviewCard extends LitElement {
     `;
   }
 
+  public static getStubConfig(): Record<string, unknown> {
+    return {
+      type: `custom:${CARD_NAME}`,
+    };
+  }
+
+  public static async getConfigElement() {
+    await import('./energy-overview-card-editor');
+    return window.document.createElement(CARD_EDITOR_NAME);
+  }
+
   public setConfig(config: EnergyOverviewConfig): void {
     if (!config) {
       throw new Error("Invalid configuration");
@@ -116,7 +137,7 @@ class EnergyOverviewCard extends LitElement {
     this._config = config;
   }
 
-  protected render(): TemplateResult | void {
+  protected render(): TemplateResult {
     if (!this._config || !this.hass) {
       return html``;
     }
@@ -145,7 +166,7 @@ class EnergyOverviewCard extends LitElement {
     });
 
     return html`
-		<ha-card .header="Energy Overview">
+		<ha-card>
 			${entities.map((entity, i) => {
 				/* Power calculation */
 				let power: number;
@@ -255,3 +276,10 @@ class EnergyOverviewCard extends LitElement {
     return entity ? this.hass!.states[entity].attributes.unit_of_measurement ?? fallback : fallback;
   }
 }
+
+// eslint-disable-next-line no-console
+console.info(
+  `%cENERGY-OVERVIEW-CARD ${version} IS INSTALLED`,
+  "color: green; font-weight: bold",
+  "",
+);
