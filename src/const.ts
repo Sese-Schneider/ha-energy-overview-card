@@ -1,6 +1,8 @@
 export const NAME = "Energy Overview";
-export const CARD_NAME = "energy-overview-card";
+export const CARD_ID = "energy-overview";
+export const CARD_NAME = `${CARD_ID}-card`;
 export const CARD_EDITOR_NAME = `${CARD_NAME}-editor`;
+export const ENTITY_EDITOR_NAME = `${CARD_ID}-entity-editor`;
 
 /* https://github.com/home-assistant/core/blob/dev/homeassistant/const.py#L482 */
 

@@ -1,6 +1,6 @@
 // noinspection JSUnusedGlobalSymbols
 
-import {css, CSSResultGroup, html, LitElement, TemplateResult} from "lit";
+import {css, CSSResultGroup, html, LitElement, nothing, TemplateResult} from "lit";
 import {customElement, property, state} from "lit/decorators";
 import {unsafeHTML} from 'lit/directives/unsafe-html.js';
 import {HomeAssistant} from "custom-card-helpers";
@@ -137,9 +137,9 @@ export class EnergyOverviewCard extends LitElement {
     this._config = config;
   }
 
-  protected render(): TemplateResult {
+  protected render(): TemplateResult | symbol {
     if (!this._config || !this.hass) {
-      return html``;
+      return nothing;
     }
     const {states} = this.hass;
 
