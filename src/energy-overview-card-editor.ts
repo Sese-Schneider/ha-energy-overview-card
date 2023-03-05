@@ -23,10 +23,6 @@ export class EnergyOverviewCardEditor extends LitElement implements LovelaceCard
 
     @state() _selectedCard = 0;
 
-    @state() _GUImode = true;
-
-    @state() _guiModeAvailable? = true;
-
     @query(ENTITY_EDITOR_NAME)
     _entityEditorEl?: EnergyOverviewEntityEditor;
 
@@ -69,10 +65,6 @@ export class EnergyOverviewCardEditor extends LitElement implements LovelaceCard
               margin: 0 -12px;
             }
           }
-
-          .gui-mode-button {
-            margin-right: auto;
-          }
         `;
     }
 
@@ -88,18 +80,19 @@ export class EnergyOverviewCardEditor extends LitElement implements LovelaceCard
         const entities = [...this._config.entities];
         entities[this._selectedCard] = ev.detail.config as EnergyOverviewEntity;
         this._config = {...this._config, entities};
-        console.debug("new config", this._config);
-        this._guiModeAvailable = ev.detail.guiModeAvailable;
         fireEvent(this, "config-changed", {config: this._config});
     }
 
     _handleSelectedCard(ev) {
         if (ev.target.id === "add-card") {
-            this._selectedCard = this._config!.entities.length;
+            ev.stopPropagation();
+            const entities = [...this._config!.entities];
+            entities.push(<EnergyOverviewEntity>{});
+            this._config = { ...this._config!, entities };
+            this._selectedCard = this._config!.entities.length - 1;
+            fireEvent(this, "config-changed", { config: this._config });
             return;
         }
-        this._setMode(true);
-        this._guiModeAvailable = true;
         this._selectedCard = parseInt(ev.detail.selected, 10);
     }
 
@@ -130,23 +123,6 @@ export class EnergyOverviewCardEditor extends LitElement implements LovelaceCard
         };
         this._selectedCard = target;
         fireEvent(this, "config-changed", {config: this._config});
-    }
-
-    _setMode(value: boolean): void {
-        this._GUImode = value;
-        if (this._entityEditorEl) {
-            this._entityEditorEl!.GUImode = value;
-        }
-    }
-
-    _toggleMode(): void {
-        this._entityEditorEl?.toggleMode();
-    }
-
-    _handleGUIModeChanged(ev): void {
-        ev.stopPropagation();
-        this._GUImode = ev.detail.guiMode;
-        this._guiModeAvailable = ev.detail.guiModeAvailable;
     }
 
     render(): TemplateResult | symbol {
@@ -181,16 +157,6 @@ export class EnergyOverviewCardEditor extends LitElement implements LovelaceCard
             </div>
             <div id="editor">
                 <div id="card-options">
-                    <mwc-button
-                            @click=${this._toggleMode}
-                            .disabled=${!this._guiModeAvailable}
-                            class="gui-mode-button">
-                        ${this.hass!.localize(
-                                this._GUImode
-                                        ? "ui.panel.lovelace.editor.edit_card.show_code_editor"
-                                        : "ui.panel.lovelace.editor.edit_card.show_visual_editor",
-                        )}
-                    </mwc-button>
                     <ha-icon-button
                             .disabled=${selected === 0}
                             .label=${this.hass!.localize(
@@ -220,7 +186,6 @@ export class EnergyOverviewCardEditor extends LitElement implements LovelaceCard
                         .config=${this._config.entities[selected]}
                         .lovelace=${this.lovelace}
                         @config-changed=${this._handleConfigChanged}
-                        @GUImode-changed=${this._handleGUIModeChanged}>
                 </energy-overview-entity-editor>
             </div>
         `;
