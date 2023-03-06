@@ -60,3 +60,23 @@ export const ENTITY_VISUALS_SCHEMA = [
   },
   {name: "color", selector: {text: {}}},
 ];
+
+export const CARD_SCHEMA = [
+  {
+    name: "order_by",
+    label: "Order entities by",
+    selector: {
+      select: {
+        mode: "dropdown",
+        options: [
+          {value: "", label: "None"},
+          {value: "power", label: "Power"},
+          {value: "voltage", label: "Voltage"},
+          {value: "current", label: "Current"},
+          {value: "frequency", label: "Frequency"},
+          {value: "power_factor", label: "Power Factor"},
+        ],
+      },
+    },
+  },
+];

@@ -16,7 +16,7 @@ A simple card which displays energy usage details of one or multiple entities.
 
 - Variable amount of monitoring entities
 - Voltage, Current, Power, Frequency and Power Factor display
-- Automatic unit of measurement detection
+- Automatic unit of measurement detection and ordering
 - Adjustable names, colors, labels and icons
 - Configurable dynamic animations adapting to power usage
 
@@ -35,11 +35,12 @@ Direct configuration via YAML is also available. For details see below.
 
 ## Options
 
-| Name      | Type               | Requirement  | Description                         | Default |
-|-----------|--------------------|--------------|-------------------------------------|---------|
-| type      | string             | **Required** | `custom:energy-overview-card`       |         |
-| entities  | Array<PowerEntity> | **Required** | List of power entities (see below)  |         |
-| animation | AnimationConfig    | *Optional*   | Animation configuration (see below) |         |
+| Name      | Type               | Requirement  | Description                                                                                                           | Default    |
+|-----------|--------------------|--------------|-----------------------------------------------------------------------------------------------------------------------|------------|
+| type      | string             | **Required** | `custom:energy-overview-card`                                                                                         |            |
+| entities  | Array<PowerEntity> | **Required** | List of power entities (see below)                                                                                    |            |
+| animation | AnimationConfig    | *Optional*   | Animation configuration (see below)                                                                                   |            |
+| order_by  | string             | *Optional*   | Value name of which to sort all entities. Options are: `power`, `voltage`, `current`, `frequency`, and `power_factor` | No sorting |
 
 #### PowerEntity
 

@@ -32,4 +32,5 @@ export interface EnergyOverviewConfig {
   type: string;
   entities: Array<EnergyOverviewEntity>;
   animation?: EnergyOverviewAnimation;
+  order_by?: string;
 }
