@@ -1,3 +1,10 @@
+## [2.3.0](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v2.2.0...v2.3.0) (2023-03-06)
+
+
+### Features
+
+* Add GUI card editor ([#23](https://github.com/Sese-Schneider/ha-energy-overview-card/issues/23)) ([305e5a2](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/305e5a2e773fa1c6137d85b572fdcb63ba11b898))
+
 ## [2.2.0](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v2.1.0...v2.2.0) (2023-03-02)
 
 
