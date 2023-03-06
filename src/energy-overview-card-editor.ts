@@ -13,7 +13,7 @@ import {EnergyOverviewConfig, EnergyOverviewEntity} from "./types";
 import {EnergyOverviewEntityEditor} from "./energy-overview-entity-editor";
 import "./energy-overview-entity-editor";
 import {repository} from "../package.json";
-import {ANIMATION_SCHEMA} from "./schemas";
+import {ANIMATION_SCHEMA, CARD_SCHEMA} from "./schemas";
 import {capitalize} from "./util";
 
 @customElement(CARD_EDITOR_NAME)
@@ -135,6 +135,11 @@ export class EnergyOverviewCardEditor extends LitElement implements LovelaceCard
     return label;
   };
 
+  _valueChanged(ev) {
+    if (!this._config) return;
+    fireEvent(this, "config-changed", {config: {...this._config, ...ev.detail.value}});
+  }
+
   _animationChanged(ev) {
     if (!this._config) return;
     fireEvent(this, "config-changed", {config: {...this._config, animation: ev.detail.value}});
@@ -149,69 +154,78 @@ export class EnergyOverviewCardEditor extends LitElement implements LovelaceCard
     const numcards = this._config.entities.length;
 
     return html`
-		<h2>Entities</h2>
-		<div class="card-config">
-			<div class="toolbar">
-				<paper-tabs
-					.selected=${selected}
-					scrollable
-					@iron-activate=${this._handleSelectedCard}>
-					${this._config.entities.map(
-						(_card, i) => html`
-							<paper-tab> ${i + 1}</paper-tab> `,
-					)}
-				</paper-tabs>
-				<paper-tabs
-					id="add-card"
-					.selected=${selected === numcards ? "0" : undefined}
-					@iron-activate=${this._handleSelectedCard}>
-					<paper-tab>
-						<ha-svg-icon .path=${mdiPlus}></ha-svg-icon>
-					</paper-tab>
-				</paper-tabs>
-			</div>
-		</div>
-		<div id="editor">
-			<div id="card-options">
-				<ha-icon-button
-					.disabled=${selected === 0}
-					.label=${this.hass!.localize(
-						"ui.panel.lovelace.editor.edit_card.move_before",
-					)}
-					.path=${mdiArrowLeft}
-					@click=${this._handleMove}
-					.move=${-1}></ha-icon-button>
-				<ha-icon-button
-					.label=${this.hass!.localize(
-						"ui.panel.lovelace.editor.edit_card.move_after",
-					)}
-					.path=${mdiArrowRight}
-					.disabled=${selected === numcards - 1}
-					@click=${this._handleMove}
-					.move=${1}></ha-icon-button>
-				<ha-icon-button
-					.label=${this.hass!.localize(
-						"ui.panel.lovelace.editor.edit_card.delete",
-					)}
-					.path=${mdiDelete}
-					@click=${this._handleDeleteCard}></ha-icon-button>
-			</div>
+      <h2>Entities</h2>
+      <div class="card-config">
+        <div class="toolbar">
+          <paper-tabs
+            .selected=${selected}
+            scrollable
+            @iron-activate=${this._handleSelectedCard}>
+            ${this._config.entities.map(
+              (_card, i) => html`
+                <paper-tab> ${i + 1}</paper-tab> `,
+            )}
+          </paper-tabs>
+          <paper-tabs
+            id="add-card"
+            .selected=${selected === numcards ? "0" : undefined}
+            @iron-activate=${this._handleSelectedCard}>
+            <paper-tab>
+              <ha-svg-icon .path=${mdiPlus}></ha-svg-icon>
+            </paper-tab>
+          </paper-tabs>
+        </div>
+      </div>
+      <div id="editor">
+        <div id="card-options">
+          <ha-icon-button
+            .disabled=${selected === 0}
+            .label=${this.hass!.localize(
+              "ui.panel.lovelace.editor.edit_card.move_before",
+            )}
+            .path=${mdiArrowLeft}
+            @click=${this._handleMove}
+            .move=${-1}></ha-icon-button>
+          <ha-icon-button
+            .label=${this.hass!.localize(
+              "ui.panel.lovelace.editor.edit_card.move_after",
+            )}
+            .path=${mdiArrowRight}
+            .disabled=${selected === numcards - 1}
+            @click=${this._handleMove}
+            .move=${1}></ha-icon-button>
+          <ha-icon-button
+            .label=${this.hass!.localize(
+              "ui.panel.lovelace.editor.edit_card.delete",
+            )}
+            .path=${mdiDelete}
+            @click=${this._handleDeleteCard}></ha-icon-button>
+        </div>
 
-			<energy-overview-entity-editor
-				.hass=${this.hass}
-				.config=${this._config.entities[selected]}
-				.lovelace=${this.lovelace}
-				@config-changed=${this._handleConfigChanged}
-			</energy-overview-entity-editor>
-		</div>
-		<h2>Animation</h2>
-		<ha-form
-			.hass="${this.hass}"
-			.data="${this._config.animation ?? {}}"
-			.schema="${ANIMATION_SCHEMA}"
-			.computeLabel="${this._computeLabel}"
-			@value-changed="${this._animationChanged}">
-		</ha-form>`;
+        <energy-overview-entity-editor
+          .hass=${this.hass}
+          .config=${this._config.entities[selected]}
+          .lovelace=${this.lovelace}
+          @config-changed=${this._handleConfigChanged}
+        </energy-overview-entity-editor>
+      </div>
+      <br />
+      <ha-form
+        .hass="${this.hass}"
+        .data="${this._config}"
+        .schema="${CARD_SCHEMA}"
+        .computeLabel="${this._computeLabel}"
+        @value-changed="${this._valueChanged}">
+      </ha-form>
+      <h2>Animation</h2>
+      <ha-form
+        .hass="${this.hass}"
+        .data="${this._config.animation ?? {}}"
+        .schema="${ANIMATION_SCHEMA}"
+        .computeLabel="${this._computeLabel}"
+        @value-changed="${this._animationChanged}">
+      </ha-form>
+    `;
   }
 }
 

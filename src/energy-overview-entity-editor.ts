@@ -40,30 +40,30 @@ export class EnergyOverviewEntityEditor extends LitElement {
     }
 
     return html`
-		<h3>Data</h3>
-		<ha-form
-			.hass="${this.hass}"
-			.data="${this.config}"
-			.schema="${ENTITY_DATA_SCHEMA}"
-			.computeLabel="${this._computeLabel}"
-			@value-changed="${this._valueChanged}">
-		</ha-form>
-		<h3>Visuals</h3>
-		<ha-form
-			.hass="${this.hass}"
-			.data="${this.config}"
-			.schema="${ENTITY_VISUALS_SCHEMA}"
-			.computeLabel="${this._computeLabel}"
-			@value-changed="${this._valueChanged}">
-		</ha-form>
-		<h3>Animation Overwrite</h3>
-		<ha-form
-			.hass="${this.hass}"
-			.data="${this.config.animation ?? {}}"
-			.schema="${ANIMATION_SCHEMA}"
-			.computeLabel="${this._computeLabel}"
-			@value-changed="${this._animationChanged}">
-		</ha-form>
+      <h3>Data</h3>
+      <ha-form
+        .hass="${this.hass}"
+        .data="${this.config}"
+        .schema="${ENTITY_DATA_SCHEMA}"
+        .computeLabel="${this._computeLabel}"
+        @value-changed="${this._valueChanged}">
+      </ha-form>
+      <h3>Visuals</h3>
+      <ha-form
+        .hass="${this.hass}"
+        .data="${this.config}"
+        .schema="${ENTITY_VISUALS_SCHEMA}"
+        .computeLabel="${this._computeLabel}"
+        @value-changed="${this._valueChanged}">
+      </ha-form>
+      <h3>Animation Overwrite</h3>
+      <ha-form
+        .hass="${this.hass}"
+        .data="${this.config.animation ?? {}}"
+        .schema="${ANIMATION_SCHEMA}"
+        .computeLabel="${this._computeLabel}"
+        @value-changed="${this._animationChanged}">
+      </ha-form>
     `;
   }
 

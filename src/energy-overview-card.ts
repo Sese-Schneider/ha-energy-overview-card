@@ -164,114 +164,123 @@ export class EnergyOverviewCard extends LitElement {
       });
     });
 
+    if (this._config.order_by) {
+      const field = this._config.order_by;
+      entities.sort((e1, e2) => {
+        const a = e1[field] ? parseFloat(e1[field]) : 0;
+        const b = e2[field] ? parseFloat(e2[field]) : 0;
+        return b - a;
+      });
+    }
+
     return html`
-		<ha-card>
-			${entities.map((entity, i) => {
-				/* Power calculation */
-				let power: number;
-				switch (entity.power_unit) {
-					case UnitOfPower.KILO_WATT:
-						power = 1000 * parseFloat(entity.power);
-						break;
-					case UnitOfPower.BTU_PER_HOUR:
-						power = 0.29307107 * parseFloat(entity.power);
-						break;
-					case UnitOfPower.WATT:
-					default:
-						power = parseFloat(entity.power);
-						break;
-				}
+      <ha-card>
+        ${entities.map((entity, i) => {
+          /* Power calculation */
+          let power: number;
+          switch (entity.power_unit) {
+            case UnitOfPower.KILO_WATT:
+              power = 1000 * parseFloat(entity.power);
+              break;
+            case UnitOfPower.BTU_PER_HOUR:
+              power = 0.29307107 * parseFloat(entity.power);
+              break;
+            case UnitOfPower.WATT:
+            default:
+              power = parseFloat(entity.power);
+              break;
+          }
 
-				/* Power factor calculation */
-				const powerFactor = entity.power_factor ? (() => {
-					const pf = parseFloat(entity.power_factor);
-					if (entity.power_factor_unit === PERCENTAGE) return pf;
-					// power factor is realistically never at 1%, we can safely assume it's a percentage
-					if (pf >= -1 && pf <= 1) return pf * 100;
-					return pf;
-				})() : undefined;
+          /* Power factor calculation */
+          const powerFactor = entity.power_factor ? (() => {
+            const pf = parseFloat(entity.power_factor);
+            if (entity.power_factor_unit === PERCENTAGE) return pf;
+            // power factor is realistically never at 1%, we can safely assume it's a percentage
+            if (pf >= -1 && pf <= 1) return pf * 100;
+            return pf;
+          })() : undefined;
 
-				/* Animation */
-				const {animation} = entity;
-				const animMin = animation?.min_duration ? animation.min_duration : 1;
-				const animMax = animation?.max_duration ? animation.max_duration : 10;
-				const animPower = animation?.power ? animation.power : 1000;
-				// a linear function which is max at x=0 and min at x=power is defined by:
-				// f(x) = (-(max-min)/power) * x + max
-				const x = power;
-				const y = (-(animMax - animMin) / animPower) * Math.abs(x) + animMax;
-				let animationSpeed: number;
-				animationSpeed = clamp(y, animMin, animMax);
-				if (animationSpeed === animMax) animationSpeed = 0;
+          /* Animation */
+          const {animation} = entity;
+          const animMin = animation?.min_duration ? animation.min_duration : 1;
+          const animMax = animation?.max_duration ? animation.max_duration : 10;
+          const animPower = animation?.power ? animation.power : 1000;
+          // a linear function which is max at x=0 and min at x=power is defined by:
+          // f(x) = (-(max-min)/power) * x + max
+          const x = power;
+          const y = (-(animMax - animMin) / animPower) * Math.abs(x) + animMax;
+          let animationSpeed: number;
+          animationSpeed = clamp(y, animMin, animMax);
+          if (animationSpeed === animMax) animationSpeed = 0;
 
-				const inverted = animationSpeed > 0 // do not invert animation stop
-					? (animation?.inverted ?? false) !== (x < 0) // Invert for animation.inverted XOR below 0
-					: false;
+          // Invert for animation.inverted XOR below 0
+          const inverted = animationSpeed > 0 // do not invert animation stop
+            ? (animation?.inverted ?? false) !== (x < 0)
+            : false;
 
-				return html`
-					<!--suppress CssUnresolvedCustomProperty -->
-					<div class="entity entity-${i}"
-					     style="--energy-line-color: ${entity.color};">
-						${entity.name ? html`<span class="primary name">${entity.name}</span>` : ''}
-						<div class="metadata">
-							${entity.current || entity.voltage || entity.frequency ? html`
-									<div class="metadata-left">
-										${unsafeHTML((() => {
-											const elements: Array<String> = [];
-											if (entity.voltage) {
-												elements.push(`<span class="secondary voltage">${entity.voltage}</span>&nbsp;<span class="secondary voltage-unit">${entity.voltage_unit}</span>`);
-											}
-											if (entity.current) {
-												elements.push(`<span class="secondary current">${entity.current}</span>&nbsp;<span class="secondary current-unit">${entity.current_unit}</span>`);
-											}
-											if (entity.frequency) {
-												elements.push(`<span class="secondary frequency">${entity.frequency}</span>&nbsp;<span class="secondary frequency-unit">${entity.frequency_unit}</span>`);
-											}
+          return html`
+            <!--suppress CssUnresolvedCustomProperty -->
+            <div class="entity entity-${i}"
+                 style="--energy-line-color: ${entity.color};">
+              ${entity.name ? html`<span class="primary name">${entity.name}</span>` : ''}
+              <div class="metadata">
+                ${entity.current || entity.voltage || entity.frequency ? html`
+                    <div class="metadata-left">
+                      ${unsafeHTML((() => {
+                        const elements: Array<String> = [];
+                        if (entity.voltage) {
+                          elements.push(`<span class="secondary voltage">${entity.voltage}</span>&nbsp;<span class="secondary voltage-unit">${entity.voltage_unit}</span>`);
+                        }
+                        if (entity.current) {
+                          elements.push(`<span class="secondary current">${entity.current}</span>&nbsp;<span class="secondary current-unit">${entity.current_unit}</span>`);
+                        }
+                        if (entity.frequency) {
+                          elements.push(`<span class="secondary frequency">${entity.frequency}</span>&nbsp;<span class="secondary frequency-unit">${entity.frequency_unit}</span>`);
+                        }
 
-											return intersperse(
-												elements,
-												`<div class="divider"></div>`,
-											);
-										})().join(''))}
-									</div>`
-								: ``}
-							<div class="metadata-center">
-								<span class="secondary power">${entity.power}</span>&nbsp;<span
-								class="secondary power-unit">${entity.power_unit}</span>
-							</div>
-							${powerFactor ? html`
-								<div class="metadata-right">
-									<span class="secondary power-factor">${Math.round(powerFactor)}</span>&nbsp;<span
-									class="secondary power-factor-unit">${PERCENTAGE}</span></div>` : ``}
-						</div>
-						<div class="main">
-							<div class="primary label label-leading">${entity.label_leading}</div>
-							<div class="icon icon-leading">
-								<ha-icon icon="${entity.icon_leading}"></ha-icon>
-							</div>
-							<div class="line">
-								<svg overflow="visible" preserveAspectRatio="xMaxYMid slice"
-								     viewBox="0 0 100 10" xmlns="http://www.w3.org/2000/svg">
-									<path class="grid" d="M0,5 H100" id="grid"
-									      vector-effect="non-scaling-stroke"></path>
-									<circle class="grid" r="1"
-									        vector-effect="non-scaling-stroke">
-										<animateMotion keyTimes="0;1" keyPoints="${inverted ? `1;0` : `0;1`}"
-										               calcMode="linear" dur="${animationSpeed}s"
-										               repeatCount="indefinite">
-											<mpath xlink:href="#grid"></mpath>
-										</animateMotion>
-									</circle>
-								</svg>
-							</div>
-							<div class="icon icon-trailing">
-								<ha-icon icon="${entity.icon_trailing}"></ha-icon>
-							</div>
-							<div class="primary label label-trailing">${entity.label_trailing}</div>
-						</div>
-					</div>`;
-			})}
-		</ha-card>
+                        return intersperse(
+                          elements,
+                          `<div class="divider"></div>`,
+                        );
+                      })().join(''))}
+                    </div>`
+                  : ``}
+                <div class="metadata-center">
+                  <span class="secondary power">${entity.power}</span>&nbsp;<span
+                  class="secondary power-unit">${entity.power_unit}</span>
+                </div>
+                ${powerFactor ? html`
+                  <div class="metadata-right">
+                    <span class="secondary power-factor">${Math.round(powerFactor)}</span>&nbsp;<span
+                    class="secondary power-factor-unit">${PERCENTAGE}</span></div>` : ``}
+              </div>
+              <div class="main">
+                <div class="primary label label-leading">${entity.label_leading}</div>
+                <div class="icon icon-leading">
+                  <ha-icon icon="${entity.icon_leading}"></ha-icon>
+                </div>
+                <div class="line">
+                  <svg overflow="visible" preserveAspectRatio="xMaxYMid slice"
+                       viewBox="0 0 100 10" xmlns="http://www.w3.org/2000/svg">
+                    <path class="grid" d="M0,5 H100" id="grid"
+                          vector-effect="non-scaling-stroke"></path>
+                    <circle class="grid" r="1"
+                            vector-effect="non-scaling-stroke">
+                      <animateMotion keyTimes="0;1" keyPoints="${inverted ? `1;0` : `0;1`}" calcMode="linear"
+                                     dur="${animationSpeed}s" repeatCount="indefinite">
+                        <mpath xlink:href="#grid"></mpath>
+                      </animateMotion>
+                    </circle>
+                  </svg>
+                </div>
+                <div class="icon icon-trailing">
+                  <ha-icon icon="${entity.icon_trailing}"></ha-icon>
+                </div>
+                <div class="primary label label-trailing">${entity.label_trailing}</div>
+              </div>
+            </div>`;
+        })}
+      </ha-card>
     `;
   }
 
