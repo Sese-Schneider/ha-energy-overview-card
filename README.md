@@ -60,11 +60,12 @@ Direct configuration via YAML is also available. For details see below.
 
 #### AnimationConfig
 
-| Name         | Type   | Requirement | Description                                                       | Default |
-|--------------|--------|-------------|-------------------------------------------------------------------|---------|
-| power        | number | *Optional*  | Wattage level at which the animation runs at `min_duration` speed | 1000    |
-| min_duration | number | *Optional*  | Minimum duration of the animation at `>= power W`                 | 1       |
-| max_duration | number | *Optional*  | Maximum duration of the animation at `> 0 W`                      | 10      |
+| Name         | Type    | Requirement | Description                                                       | Default |
+|--------------|---------|-------------|-------------------------------------------------------------------|---------|
+| power        | number  | *Optional*  | Wattage level at which the animation runs at `min_duration` speed | 1000    |
+| min_duration | number  | *Optional*  | Minimum duration of the animation at `>= power W`                 | 1       |
+| max_duration | number  | *Optional*  | Maximum duration of the animation at `> 0 W`                      | 10      |
+| inverted     | boolean | *Optional*  | Inverts the animation direction                                   | false   |
 
 ### Example configuration
 
