@@ -10,6 +10,7 @@ export interface EnergyOverviewEntity {
   voltage?: string;
   frequency?: string;
   power_factor?: string;
+  name?: string;
   label_trailing?: string;
   label_leading?: string;
   icon_trailing?: string;
