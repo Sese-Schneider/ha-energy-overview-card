@@ -40,6 +40,7 @@ export const ENTITY_DATA_SCHEMA = [
 ];
 
 export const ENTITY_VISUALS_SCHEMA = [
+  {name: "name", selector: {text: {}}},
   {
     type: "grid",
     name: "",

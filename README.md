@@ -17,7 +17,7 @@ A simple card which displays energy usage details of one or multiple entities.
 - Variable amount of monitoring entities
 - Voltage, Current, Power, Frequency and Power Factor display
 - Automatic unit of measurement detection
-- Adjustable colors, labels and icons
+- Adjustable names, colors, labels and icons
 - Configurable dynamic animations adapting to power usage
 
 *Three-phase power monitoring example:*
@@ -50,6 +50,7 @@ Direct configuration via YAML is also available. For details see below.
 | current        | state entity    | *Optional*   | State entity for current           |                                        |
 | frequency      | state entity    | *Optional*   | State entity for frequency         |                                        |
 | power_factor   | state entity    | *Optional*   | State entity for power_factor      |                                        |
+| name           | string          | *Optional*   | Name label                         |                                        |
 | icon_leading   | string          | *Optional*   | Leading MD icon                    | `mdi:transmission-tower`               |
 | icon_trailing  | string          | *Optional*   | Trailing MD icon                   | `mdi:home-lightning-bolt`              |
 | label_leading  | string          | *Optional*   | Leading label                      |                                        |

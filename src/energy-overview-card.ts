@@ -154,6 +154,7 @@ export class EnergyOverviewCard extends LitElement {
         frequency_unit: this._extractUnit(entity.frequency, UnitOfFrequency.HERTZ),
         power_factor: entity.power_factor ? states[entity.power_factor].state : undefined,
         power_factor_unit: this._extractUnit(entity.power_factor, ''),
+        name: entity.name ? entity.name : '',
         color: entity.color ? entity.color : 'var(--energy-grid-consumption-color)',
         label_trailing: entity.label_trailing ? entity.label_trailing : '',
         label_leading: entity.label_leading ? entity.label_leading : '',
@@ -208,6 +209,7 @@ export class EnergyOverviewCard extends LitElement {
 					<!--suppress CssUnresolvedCustomProperty -->
 					<div class="entity entity-${i}"
 					     style="--energy-line-color: ${entity.color};">
+						${entity.name ? html`<span class="primary name">${entity.name}</span>` : ''}
 						<div class="metadata">
 							${entity.current || entity.voltage || entity.frequency ? html`
 									<div class="metadata-left">
