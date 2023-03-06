@@ -1,3 +1,12 @@
+## [2.4.0](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v2.3.0...v2.4.0) (2023-03-06)
+
+
+### Features
+
+* Add option to sort entities by data ([20b53ea](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/20b53ea29ebf4446be8d864e6e5431b6ef4ca66b))
+* Add optional name parameter as label ([d58d213](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/d58d213db019c08dda1243eba7199a8d0aef9e21))
+* Allow to invert animation direction ([33fcdab](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/33fcdab76c726a3acabe15e8da50edc0073020bf))
+
 ## [2.3.0](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v2.2.0...v2.3.0) (2023-03-06)
 
 
