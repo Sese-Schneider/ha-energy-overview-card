@@ -1,18 +1,29 @@
 // noinspection JSUnusedGlobalSymbols
 
-import {css, CSSResultGroup, html, LitElement, TemplateResult} from "lit";
-import {customElement, property} from "lit/decorators";
+import {css, CSSResultGroup, html, LitElement, nothing, TemplateResult} from "lit";
+import {customElement, property, state} from "lit/decorators";
 import {unsafeHTML} from 'lit/directives/unsafe-html.js';
 import {HomeAssistant} from "custom-card-helpers";
+import {version} from "../package.json";
 import {EnergyOverviewConfig, EnergyOverviewEntityUI} from "./types";
-import clamp, {intersperse} from "./util";
-import {PERCENTAGE, UnitOfElectricCurrent, UnitOfElectricPotential, UnitOfFrequency, UnitOfPower} from "./const";
+import {clamp, intersperse} from "./util";
+import {
+  CARD_EDITOR_NAME,
+  CARD_NAME,
+  ICON_LEADING_DEFAULT,
+  ICON_TRAILING_DEFAULT,
+  PERCENTAGE,
+  UnitOfElectricCurrent,
+  UnitOfElectricPotential,
+  UnitOfFrequency,
+  UnitOfPower,
+} from "./const";
 
-@customElement("energy-overview-card")
-class EnergyOverviewCard extends LitElement {
+@customElement(CARD_NAME)
+export class EnergyOverviewCard extends LitElement {
   @property() public hass?: HomeAssistant;
 
-  @property() private _config?: EnergyOverviewConfig;
+  @state() private _config?: EnergyOverviewConfig;
 
   static get styles(): CSSResultGroup {
     return css`
@@ -103,29 +114,37 @@ class EnergyOverviewCard extends LitElement {
     `;
   }
 
+  public static getStubConfig(): Record<string, unknown> {
+    return {
+      type: `custom:${CARD_NAME}`,
+      entities: [{}],
+    };
+  }
+
+  public static async getConfigElement() {
+    await import('./energy-overview-card-editor');
+    return window.document.createElement(CARD_EDITOR_NAME);
+  }
+
   public setConfig(config: EnergyOverviewConfig): void {
     if (!config) {
       throw new Error("Invalid configuration");
     }
     if (!config.entities) throw new Error('At least one entity is required.');
 
-    config.entities.forEach((entity) => {
-      if (!entity.power) throw new Error('Power is required for each entity.');
-    });
-
     this._config = config;
   }
 
-  protected render(): TemplateResult | void {
+  protected render(): TemplateResult | symbol {
     if (!this._config || !this.hass) {
-      return html``;
+      return nothing;
     }
     const {states} = this.hass;
 
     const entities: Array<EnergyOverviewEntityUI> = [];
     this._config.entities.forEach((entity) => {
       entities.push({
-        power: states[entity.power].state,
+        power: entity.power ? states[entity.power].state : '0',
         power_unit: this._extractUnit(entity.power, UnitOfPower.WATT),
         current: entity.current ? states[entity.current].state : undefined,
         current_unit: this._extractUnit(entity.current, UnitOfElectricCurrent.AMPERE),
@@ -138,14 +157,14 @@ class EnergyOverviewCard extends LitElement {
         color: entity.color ? entity.color : 'var(--energy-grid-consumption-color)',
         label_trailing: entity.label_trailing ? entity.label_trailing : '',
         label_leading: entity.label_leading ? entity.label_leading : '',
-        icon_trailing: entity.icon_trailing ? entity.icon_trailing : 'mdi:home-lightning-bolt',
-        icon_leading: entity.icon_leading ? entity.icon_leading : 'mdi:transmission-tower',
+        icon_trailing: entity.icon_trailing ? entity.icon_trailing : ICON_TRAILING_DEFAULT,
+        icon_leading: entity.icon_leading ? entity.icon_leading : ICON_LEADING_DEFAULT,
         animation: entity.animation ?? this._config?.animation,
       });
     });
 
     return html`
-		<ha-card .header="Energy Overview">
+		<ha-card>
 			${entities.map((entity, i) => {
 				/* Power calculation */
 				let power: number;
@@ -255,3 +274,10 @@ class EnergyOverviewCard extends LitElement {
     return entity ? this.hass!.states[entity].attributes.unit_of_measurement ?? fallback : fallback;
   }
 }
+
+// eslint-disable-next-line no-console
+console.info(
+  `%c${CARD_NAME} (${version}) is installed`,
+  "color: #33b4ff; font-weight: bold",
+  "",
+);

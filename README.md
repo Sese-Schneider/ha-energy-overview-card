@@ -24,6 +24,15 @@ A simple card which displays energy usage details of one or multiple entities.
 
 ![](.github/assets/card.gif)
 
+## Configuration
+
+A graphical user interface (GUI) to configure the card is available.
+
+After installation, simply press "Add Card", search for "Energy Overview", and add the card.
+Now you can start the configuration via the GUI.
+
+Direct configuration via YAML is also available. For details see below.
+
 ## Options
 
 | Name      | Type               | Requirement  | Description                         | Default |
@@ -37,14 +46,14 @@ A simple card which displays energy usage details of one or multiple entities.
 | Name           | Type            | Requirement  | Description                        | Default                                |
 |----------------|-----------------|--------------|------------------------------------|----------------------------------------|
 | power          | state entity    | **Required** | State entity for power             |                                        |
-| current        | state entity    | *Optional*   | State entity for current           |                                        |
 | voltage        | state entity    | *Optional*   | State entity for voltage           |                                        |
+| current        | state entity    | *Optional*   | State entity for current           |                                        |
 | frequency      | state entity    | *Optional*   | State entity for frequency         |                                        |
 | power_factor   | state entity    | *Optional*   | State entity for power_factor      |                                        |
-| label_leading  | string          | *Optional*   | Leading label                      |                                        |
-| label_trailing | string          | *Optional*   | Trailing label                     |                                        |
 | icon_leading   | string          | *Optional*   | Leading MD icon                    | `mdi:transmission-tower`               |
 | icon_trailing  | string          | *Optional*   | Trailing MD icon                   | `mdi:home-lightning-bolt`              |
+| label_leading  | string          | *Optional*   | Leading label                      |                                        |
+| label_trailing | string          | *Optional*   | Trailing label                     |                                        |
 | color          | string          | *Optional*   | CSS color                          | `var(--energy-grid-consumption-color)` |
 | animation      | AnimationConfig | *Optional*   | Overwrite for the global animation |                                        |
 

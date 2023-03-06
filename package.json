@@ -15,7 +15,8 @@
     "author": "Sebastian Schneider <sese.tailor@gmx.net>",
     "license": "MIT",
     "dependencies": {
-        "custom-card-helpers": "^1.0.8",
+        "@mdi/js": "^7.1.96",
+        "custom-card-helpers": "^1.9.0",
         "home-assistant-js-websocket": "^4.3.1",
         "lit": "^2.0.1"
     },
@@ -40,8 +41,10 @@
         "eslint-plugin-react": "7.28.0",
         "eslint-plugin-react-hooks": "4.3.0",
         "prettier": "^1.16.4",
-        "rollup": "^1.20.3",
+        "rollup": "^3.18.0",
         "rollup-plugin-babel": "^4.3.2",
+        "rollup-plugin-commonjs": "^10.1.0",
+        "rollup-plugin-json": "^4.0.0",
         "rollup-plugin-node-resolve": "^5.2.0",
         "rollup-plugin-terser": "^5.1.1",
         "rollup-plugin-typescript2": "^0.24.0",
@@ -50,8 +53,8 @@
         "typescript": "^4.9.4"
     },
     "scripts": {
-        "start": "rollup -c --watch",
-        "build": "npm run lint && npm run rollup",
+        "start": "rollup -c --watch --bundleConfigAsCjs",
+        "build": "npm run lint && rollup -c --bundleConfigAsCjs",
         "lint": "eslint src/*.ts",
         "rollup": "rollup -c"
     }
