@@ -24,6 +24,15 @@ A simple card which displays energy usage details of one or multiple entities.
 
 ![](.github/assets/card.gif)
 
+## Configuration
+
+A graphical user interface (GUI) to configure the card is available.
+
+After installation, simply press "Add Card", search for "Energy Overview", and add the card.
+Now you can start the configuration via the GUI.
+
+Direct configuration via YAML is also available. For details see below.
+
 ## Options
 
 | Name      | Type               | Requirement  | Description                         | Default |

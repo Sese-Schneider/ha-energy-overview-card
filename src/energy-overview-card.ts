@@ -9,8 +9,9 @@ import {EnergyOverviewConfig, EnergyOverviewEntityUI} from "./types";
 import {clamp, intersperse} from "./util";
 import {
   CARD_EDITOR_NAME,
-  CARD_NAME, ICON_LEADING_DEFAULT, ICON_TRAILING_DEFAULT,
-  NAME,
+  CARD_NAME,
+  ICON_LEADING_DEFAULT,
+  ICON_TRAILING_DEFAULT,
   PERCENTAGE,
   UnitOfElectricCurrent,
   UnitOfElectricPotential,
@@ -116,6 +117,7 @@ export class EnergyOverviewCard extends LitElement {
   public static getStubConfig(): Record<string, unknown> {
     return {
       type: `custom:${CARD_NAME}`,
+      entities: [{}],
     };
   }
 
@@ -130,10 +132,6 @@ export class EnergyOverviewCard extends LitElement {
     }
     if (!config.entities) throw new Error('At least one entity is required.');
 
-    config.entities.forEach((entity) => {
-      if (!entity.power) throw new Error('Power is required for each entity.');
-    });
-
     this._config = config;
   }
 
@@ -146,7 +144,7 @@ export class EnergyOverviewCard extends LitElement {
     const entities: Array<EnergyOverviewEntityUI> = [];
     this._config.entities.forEach((entity) => {
       entities.push({
-        power: states[entity.power].state,
+        power: entity.power ? states[entity.power].state : '0',
         power_unit: this._extractUnit(entity.power, UnitOfPower.WATT),
         current: entity.current ? states[entity.current].state : undefined,
         current_unit: this._extractUnit(entity.current, UnitOfElectricCurrent.AMPERE),
@@ -279,7 +277,7 @@ export class EnergyOverviewCard extends LitElement {
 
 // eslint-disable-next-line no-console
 console.info(
-  `%cENERGY-OVERVIEW-CARD ${version} IS INSTALLED`,
-  "color: green; font-weight: bold",
+  `%c${CARD_NAME} (${version}) is installed`,
+  "color: #33b4ff; font-weight: bold",
   "",
 );

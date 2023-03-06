@@ -219,6 +219,7 @@ export class EnergyOverviewCardEditor extends LitElement implements LovelaceCard
 (window as any).customCards.push({
   type: CARD_NAME,
   name: NAME,
+  preview: true,
   documentationURL: repository,
   description: "Card to displays energy usage details of one or multiple entities.",
 });
