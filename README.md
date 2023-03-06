@@ -37,14 +37,14 @@ A simple card which displays energy usage details of one or multiple entities.
 | Name           | Type            | Requirement  | Description                        | Default                                |
 |----------------|-----------------|--------------|------------------------------------|----------------------------------------|
 | power          | state entity    | **Required** | State entity for power             |                                        |
-| current        | state entity    | *Optional*   | State entity for current           |                                        |
 | voltage        | state entity    | *Optional*   | State entity for voltage           |                                        |
+| current        | state entity    | *Optional*   | State entity for current           |                                        |
 | frequency      | state entity    | *Optional*   | State entity for frequency         |                                        |
 | power_factor   | state entity    | *Optional*   | State entity for power_factor      |                                        |
-| label_leading  | string          | *Optional*   | Leading label                      |                                        |
-| label_trailing | string          | *Optional*   | Trailing label                     |                                        |
 | icon_leading   | string          | *Optional*   | Leading MD icon                    | `mdi:transmission-tower`               |
 | icon_trailing  | string          | *Optional*   | Trailing MD icon                   | `mdi:home-lightning-bolt`              |
+| label_leading  | string          | *Optional*   | Leading label                      |                                        |
+| label_trailing | string          | *Optional*   | Trailing label                     |                                        |
 | color          | string          | *Optional*   | CSS color                          | `var(--energy-grid-consumption-color)` |
 | animation      | AnimationConfig | *Optional*   | Overwrite for the global animation |                                        |
 

@@ -9,7 +9,7 @@ import {EnergyOverviewConfig, EnergyOverviewEntityUI} from "./types";
 import {clamp, intersperse} from "./util";
 import {
   CARD_EDITOR_NAME,
-  CARD_NAME,
+  CARD_NAME, ICON_LEADING_DEFAULT, ICON_TRAILING_DEFAULT,
   NAME,
   PERCENTAGE,
   UnitOfElectricCurrent,
@@ -159,8 +159,8 @@ export class EnergyOverviewCard extends LitElement {
         color: entity.color ? entity.color : 'var(--energy-grid-consumption-color)',
         label_trailing: entity.label_trailing ? entity.label_trailing : '',
         label_leading: entity.label_leading ? entity.label_leading : '',
-        icon_trailing: entity.icon_trailing ? entity.icon_trailing : 'mdi:home-lightning-bolt',
-        icon_leading: entity.icon_leading ? entity.icon_leading : 'mdi:transmission-tower',
+        icon_trailing: entity.icon_trailing ? entity.icon_trailing : ICON_TRAILING_DEFAULT,
+        icon_leading: entity.icon_leading ? entity.icon_leading : ICON_LEADING_DEFAULT,
         animation: entity.animation ?? this._config?.animation,
       });
     });

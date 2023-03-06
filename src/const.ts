@@ -4,6 +4,10 @@ export const CARD_NAME = `${CARD_ID}-card`;
 export const CARD_EDITOR_NAME = `${CARD_NAME}-editor`;
 export const ENTITY_EDITOR_NAME = `${CARD_ID}-entity-editor`;
 
+/* Default */
+export const ICON_LEADING_DEFAULT = 'mdi:transmission-tower';
+export const ICON_TRAILING_DEFAULT = 'mdi:home-lightning-bolt';
+
 /* https://github.com/home-assistant/core/blob/dev/homeassistant/const.py#L482 */
 
 export enum UnitOfPower {
