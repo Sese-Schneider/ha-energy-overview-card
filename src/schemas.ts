@@ -23,6 +23,7 @@ export const ANIMATION_SCHEMA = [
       },
     ],
   },
+  {name: "inverted", label: "Animation Direction Inverted", selector: {boolean: {}}},
 ];
 
 export const ENTITY_DATA_SCHEMA = [

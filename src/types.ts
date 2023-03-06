@@ -2,6 +2,7 @@ export interface EnergyOverviewAnimation {
   min_duration?: number;
   max_duration?: number;
   power?: number;
+  inverted?: boolean;
 }
 
 export interface EnergyOverviewEntity {

@@ -160,7 +160,7 @@ export class EnergyOverviewCard extends LitElement {
         label_leading: entity.label_leading ? entity.label_leading : '',
         icon_trailing: entity.icon_trailing ? entity.icon_trailing : ICON_TRAILING_DEFAULT,
         icon_leading: entity.icon_leading ? entity.icon_leading : ICON_LEADING_DEFAULT,
-        animation: entity.animation ?? this._config?.animation,
+        animation: {...this._config?.animation, ...entity.animation}, // only overwrite set fields
       });
     });
 
@@ -199,11 +199,14 @@ export class EnergyOverviewCard extends LitElement {
 				// a linear function which is max at x=0 and min at x=power is defined by:
 				// f(x) = (-(max-min)/power) * x + max
 				const x = power;
-				const isNegative = x < 0;
 				const y = (-(animMax - animMin) / animPower) * Math.abs(x) + animMax;
 				let animationSpeed: number;
 				animationSpeed = clamp(y, animMin, animMax);
 				if (animationSpeed === animMax) animationSpeed = 0;
+
+				const inverted = animationSpeed > 0 // do not invert animation stop
+					? (animation?.inverted ?? false) !== (x < 0) // Invert for animation.inverted XOR below 0
+					: false;
 
 				return html`
 					<!--suppress CssUnresolvedCustomProperty -->
@@ -253,7 +256,7 @@ export class EnergyOverviewCard extends LitElement {
 									      vector-effect="non-scaling-stroke"></path>
 									<circle class="grid" r="1"
 									        vector-effect="non-scaling-stroke">
-										<animateMotion keyTimes="0;1" keyPoints="${isNegative ? `1;0` : `0;1`}"
+										<animateMotion keyTimes="0;1" keyPoints="${inverted ? `1;0` : `0;1`}"
 										               calcMode="linear" dur="${animationSpeed}s"
 										               repeatCount="indefinite">
 											<mpath xlink:href="#grid"></mpath>
