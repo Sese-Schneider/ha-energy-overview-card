@@ -5,7 +5,7 @@ import {customElement, property} from "lit/decorators";
 import {TemplateResult} from "lit/development";
 import {fireEvent} from "custom-card-helpers";
 import {ENTITY_EDITOR_NAME} from "./const";
-import {capitalize, loadHaComponents} from "./util";
+import {capitalize, loadHaComponents} from "./helper/util";
 import {EnergyOverviewEntity} from "./types";
 import {ANIMATION_SCHEMA, ENTITY_DATA_SCHEMA, ENTITY_VISUALS_SCHEMA} from "./schemas";
 

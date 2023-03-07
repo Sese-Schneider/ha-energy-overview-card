@@ -14,7 +14,7 @@ import {EnergyOverviewEntityEditor} from "./energy-overview-entity-editor";
 import "./energy-overview-entity-editor";
 import {repository} from "../package.json";
 import {ANIMATION_SCHEMA, CARD_SCHEMA} from "./schemas";
-import {capitalize} from "./util";
+import {capitalize} from "./helper/util";
 
 @customElement(CARD_EDITOR_NAME)
 export class EnergyOverviewCardEditor extends LitElement implements LovelaceCardEditor {
