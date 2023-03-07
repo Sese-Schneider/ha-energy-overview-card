@@ -6,7 +6,8 @@ import {unsafeHTML} from 'lit/directives/unsafe-html.js';
 import {HomeAssistant} from "custom-card-helpers";
 import {version} from "../package.json";
 import {EnergyOverviewConfig, EnergyOverviewEntityUI} from "./types";
-import {clamp, intersperse} from "./util";
+import {clamp, intersperse} from "./helper/util";
+import {formatNumber, getNumberFormatOptions} from "./helper/format-number";
 import {
   CARD_EDITOR_NAME,
   CARD_NAME,
@@ -139,20 +140,19 @@ export class EnergyOverviewCard extends LitElement {
     if (!this._config || !this.hass) {
       return nothing;
     }
-    const {states} = this.hass;
 
     const entities: Array<EnergyOverviewEntityUI> = [];
     this._config.entities.forEach((entity) => {
       entities.push({
-        power: entity.power ? states[entity.power].state : '0',
+        power: this._formatNumber(entity.power, '0')!,
         power_unit: this._extractUnit(entity.power, UnitOfPower.WATT),
-        current: entity.current ? states[entity.current].state : undefined,
+        current: this._formatNumber(entity.current),
         current_unit: this._extractUnit(entity.current, UnitOfElectricCurrent.AMPERE),
-        voltage: entity.voltage ? states[entity.voltage].state : undefined,
+        voltage: this._formatNumber(entity.voltage),
         voltage_unit: this._extractUnit(entity.voltage, UnitOfElectricPotential.VOLT),
-        frequency: entity.frequency ? states[entity.frequency].state : undefined,
+        frequency: this._formatNumber(entity.frequency),
         frequency_unit: this._extractUnit(entity.frequency, UnitOfFrequency.HERTZ),
-        power_factor: entity.power_factor ? states[entity.power_factor].state : undefined,
+        power_factor: this._formatNumber(entity.power_factor),
         power_factor_unit: this._extractUnit(entity.power_factor, ''),
         name: entity.name ? entity.name : '',
         color: entity.color ? entity.color : 'var(--energy-grid-consumption-color)',
@@ -177,28 +177,32 @@ export class EnergyOverviewCard extends LitElement {
       <ha-card>
         ${entities.map((entity, i) => {
           /* Power calculation */
-          let power: number;
+          const configPower = parseFloat(entity.power);
+          let powerValue: number;
           switch (entity.power_unit) {
             case UnitOfPower.KILO_WATT:
-              power = 1000 * parseFloat(entity.power);
+              powerValue = 1000 * configPower;
               break;
             case UnitOfPower.BTU_PER_HOUR:
-              power = 0.29307107 * parseFloat(entity.power);
+              powerValue = 0.29307107 * configPower;
               break;
             case UnitOfPower.WATT:
             default:
-              power = parseFloat(entity.power);
+              powerValue = configPower;
               break;
           }
 
           /* Power factor calculation */
-          const powerFactor = entity.power_factor ? (() => {
+          let powerFactor: string | undefined;
+          if (entity.power_factor) {
             const pf = parseFloat(entity.power_factor);
-            if (entity.power_factor_unit === PERCENTAGE) return pf;
             // power factor is realistically never at 1%, we can safely assume it's a percentage
-            if (pf >= -1 && pf <= 1) return pf * 100;
-            return pf;
-          })() : undefined;
+            if ((pf < -1 || pf > 1) || entity.power_factor_unit === PERCENTAGE) {
+              powerFactor = entity.power_factor;
+            } else {
+              powerFactor = `${Math.round(pf * 100)}`;
+            }
+          }
 
           /* Animation */
           const {animation} = entity;
@@ -207,7 +211,7 @@ export class EnergyOverviewCard extends LitElement {
           const animPower = animation?.power ? animation.power : 1000;
           // a linear function which is max at x=0 and min at x=power is defined by:
           // f(x) = (-(max-min)/power) * x + max
-          const x = power;
+          const x = powerValue;
           const y = (-(animMax - animMin) / animPower) * Math.abs(x) + animMax;
           let animationSpeed: number;
           animationSpeed = clamp(y, animMin, animMax);
@@ -251,7 +255,7 @@ export class EnergyOverviewCard extends LitElement {
                 </div>
                 ${powerFactor ? html`
                   <div class="metadata-right">
-                    <span class="secondary power-factor">${Math.round(powerFactor)}</span>&nbsp;<span
+                    <span class="secondary power-factor">${powerFactor}</span>&nbsp;<span
                     class="secondary power-factor-unit">${PERCENTAGE}</span></div>` : ``}
               </div>
               <div class="main">
@@ -266,8 +270,12 @@ export class EnergyOverviewCard extends LitElement {
                           vector-effect="non-scaling-stroke"></path>
                     <circle class="grid" r="1"
                             vector-effect="non-scaling-stroke">
-                      <animateMotion keyTimes="0;1" keyPoints="${inverted ? `1;0` : `0;1`}" calcMode="linear"
-                                     dur="${animationSpeed}s" repeatCount="indefinite">
+                      <animateMotion
+                        calcMode="linear"
+                        dur="${animationSpeed}s"
+                        keyPoints="${inverted ? `1;0` : `0;1`}"
+                        keyTimes="0;1"
+                        repeatCount="indefinite">
                         <mpath xlink:href="#grid"></mpath>
                       </animateMotion>
                     </circle>
@@ -286,6 +294,20 @@ export class EnergyOverviewCard extends LitElement {
 
   private _extractUnit(entity: string | undefined, fallback: string) {
     return entity ? this.hass!.states[entity].attributes.unit_of_measurement ?? fallback : fallback;
+  }
+
+  private _formatNumber(entity: string | undefined, fallback?: string) {
+    const stateObj = entity ? this.hass!.states[entity] : undefined;
+    return stateObj
+      ? formatNumber(
+        stateObj.state,
+        this.hass!.locale,
+        getNumberFormatOptions(
+          stateObj,
+          (this.hass as any).entities[entity!],
+        ),
+      )
+      : fallback;
   }
 }
 
