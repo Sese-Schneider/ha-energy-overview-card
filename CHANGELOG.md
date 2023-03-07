@@ -1,3 +1,10 @@
+## [2.4.1](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v2.4.0...v2.4.1) (2023-03-07)
+
+
+### Bug Fixes
+
+* Use sensor display precision and local number formats ([341419e](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/341419e32a8f7644257068b343489ca5c87244a9))
+
 ## [2.4.0](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v2.3.0...v2.4.0) (2023-03-06)
 
 
