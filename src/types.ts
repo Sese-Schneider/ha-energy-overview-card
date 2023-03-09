@@ -20,12 +20,19 @@ export interface EnergyOverviewEntity {
   animation?: EnergyOverviewAnimation;
 }
 
-export interface EnergyOverviewEntityUI extends EnergyOverviewEntity {
-  power_unit: string;
-  current_unit: string;
-  voltage_unit: string;
-  frequency_unit: string;
-  power_factor_unit: string;
+export interface EnergyOverviewEntityState {
+  value: number,
+  unit: string;
+  display: string;
+  precision?: number;
+}
+
+export interface EnergyOverviewEntityUI extends Omit<EnergyOverviewEntity, 'power' | 'current' | 'voltage' | 'frequency' | 'power_factor'> {
+  power: EnergyOverviewEntityState;
+  current: EnergyOverviewEntityState | undefined;
+  voltage: EnergyOverviewEntityState | undefined;
+  frequency: EnergyOverviewEntityState | undefined;
+  power_factor: EnergyOverviewEntityState | undefined;
 }
 
 export interface EnergyOverviewConfig {
