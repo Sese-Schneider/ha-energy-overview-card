@@ -1,3 +1,10 @@
+## [2.4.2](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v2.4.1...v2.4.2) (2023-03-09)
+
+
+### Bug Fixes
+
+* Power factor display precision when using local number formats ([84cd710](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/84cd710b60c24c29d67afb91ae3521a445fd723c))
+
 ## [2.4.1](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v2.4.0...v2.4.1) (2023-03-07)
 
 
