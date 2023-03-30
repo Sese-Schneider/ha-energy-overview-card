@@ -10,8 +10,6 @@ A simple card which displays energy usage details of one or multiple entities.
 ![Project Maintenance][maintenance-shield]
 [![GitHub Activity][commits-shield]][commits]
 
-[!["Buy Me A Coffee"](https://buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/seseschneider)
-
 **Features:**
 
 - Variable amount of monitoring entities
