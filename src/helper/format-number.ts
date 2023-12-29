@@ -1,8 +1,8 @@
 // https://github.com/home-assistant/frontend/blob/dev/src/common/number/format_number.ts
 
 /* eslint-disable max-len */
-import {FrontendLocaleData, NumberFormat} from "custom-card-helpers";
-import {HassEntity} from "home-assistant-js-websocket";
+import { FrontendLocaleData, NumberFormat } from "custom-card-helpers";
+import { HassEntity } from "home-assistant-js-websocket";
 
 export const round = (value: number, precision = 2): number => Math.round(value * 10 ** precision) / 10 ** precision;
 
@@ -105,9 +105,7 @@ export const formatNumber = (
   if (typeof num === "string") {
     return num;
   }
-  return `${round(num, options?.maximumFractionDigits).toString()}${
-    options?.style === "currency" ? ` ${options.currency}` : ""
-  }`;
+  return `${round(num, options?.maximumFractionDigits).toString()}${options?.style === "currency" ? ` ${options.currency}` : ""}`;
 };
 
 export const getNumberFormatOptions = (
@@ -125,7 +123,7 @@ export const getNumberFormatOptions = (
     Number.isInteger(Number(entityState.attributes?.step))
     && Number.isInteger(Number(entityState.state))
   ) {
-    return {maximumFractionDigits: 0};
+    return { maximumFractionDigits: 0 };
   }
   return undefined;
 };

@@ -1,13 +1,13 @@
 // noinspection JSUnusedGlobalSymbols
 
-import {css, CSSResultGroup, html, LitElement, nothing, TemplateResult} from "lit";
-import {customElement, property, state} from "lit/decorators";
-import {unsafeHTML} from 'lit/directives/unsafe-html.js';
-import {HomeAssistant} from "custom-card-helpers";
-import {version} from "../package.json";
-import {EnergyOverviewConfig, EnergyOverviewEntityState, EnergyOverviewEntityUI} from "./types";
-import {clamp, intersperse} from "./helper/util";
-import {formatNumber, getNumberFormatOptions} from "./helper/format-number";
+import { css, CSSResultGroup, html, LitElement, nothing, TemplateResult } from "lit";
+import { customElement, property, state } from "lit/decorators";
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { HomeAssistant } from "custom-card-helpers";
+import { version } from "../package.json";
+import { EnergyOverviewConfig, EnergyOverviewEntityState, EnergyOverviewEntityUI } from "./types";
+import { clamp, intersperse } from "./helper/util";
+import { formatNumber, getNumberFormatOptions } from "./helper/format-number";
 import {
   CARD_EDITOR_NAME,
   CARD_NAME,
@@ -155,7 +155,7 @@ export class EnergyOverviewCard extends LitElement {
         label_leading: entity.label_leading ? entity.label_leading : '',
         icon_trailing: entity.icon_trailing ? entity.icon_trailing : ICON_TRAILING_DEFAULT,
         icon_leading: entity.icon_leading ? entity.icon_leading : ICON_LEADING_DEFAULT,
-        animation: {...this._config?.animation, ...entity.animation}, // only overwrite set fields
+        animation: { ...this._config?.animation, ...entity.animation }, // only overwrite set fields
       });
     });
 
@@ -169,128 +169,128 @@ export class EnergyOverviewCard extends LitElement {
     }
 
     return html`
-      <ha-card>
+      <ha-card .header=${this._config.title}>
         ${entities.map((entity, i) => {
-          /* Power calculation */
-          const configPower = entity.power.value!;
-          let powerValue: number;
-          switch (entity.power.unit) {
-            case UnitOfPower.KILO_WATT:
-              powerValue = 1000 * configPower;
-              break;
-            case UnitOfPower.BTU_PER_HOUR:
-              powerValue = 0.29307107 * configPower;
-              break;
-            case UnitOfPower.WATT:
-            default:
-              powerValue = configPower;
-              break;
-          }
+      /* Power calculation */
+      const configPower = entity.power.value!;
+      let powerValue: number;
+      switch (entity.power.unit) {
+        case UnitOfPower.KILO_WATT:
+          powerValue = 1000 * configPower;
+          break;
+        case UnitOfPower.BTU_PER_HOUR:
+          powerValue = 0.29307107 * configPower;
+          break;
+        case UnitOfPower.WATT:
+        default:
+          powerValue = configPower;
+          break;
+      }
 
-          /* Power factor calculation */
-          let powerFactorDisplay: string | undefined;
-          if (entity.power_factor) {
-            const pf = entity.power_factor.value;
-            // power factor is realistically never at 1%, we can safely assume it's a percentage
-            if ((pf < -1 || pf > 1) || entity.power_factor.unit === PERCENTAGE) {
-              powerFactorDisplay = entity.power_factor.display;
-            } else {
-              // subtract 2 because of the multiplication by 100
-              let precision = (entity.power_factor.precision ?? 0) - 2;
-              // default to 0 precision in case of negative values
-              precision = precision >= 0 ? precision : 0;
-              powerFactorDisplay = formatNumber(
-                pf * 100,
-                this.hass!.locale,
-                {maximumFractionDigits: precision, minimumFractionDigits: precision},
-              );
-            }
-          }
+      /* Power factor calculation */
+      let powerFactorDisplay: string | undefined;
+      if (entity.power_factor) {
+        const pf = entity.power_factor.value;
+        // power factor is realistically never at 1%, we can safely assume it's a percentage
+        if ((pf < -1 || pf > 1) || entity.power_factor.unit === PERCENTAGE) {
+          powerFactorDisplay = entity.power_factor.display;
+        } else {
+          // subtract 2 because of the multiplication by 100
+          let precision = (entity.power_factor.precision ?? 0) - 2;
+          // default to 0 precision in case of negative values
+          precision = precision >= 0 ? precision : 0;
+          powerFactorDisplay = formatNumber(
+            pf * 100,
+            this.hass!.locale,
+            { maximumFractionDigits: precision, minimumFractionDigits: precision },
+          );
+        }
+      }
 
-          /* Animation */
-          const {animation} = entity;
-          const animMin = animation?.min_duration ? animation.min_duration : 1;
-          const animMax = animation?.max_duration ? animation.max_duration : 10;
-          const animPower = animation?.power ? animation.power : 1000;
-          // a linear function which is max at x=0 and min at x=power is defined by:
-          // f(x) = (-(max-min)/power) * x + max
-          const x = powerValue;
-          const y = (-(animMax - animMin) / animPower) * Math.abs(x) + animMax;
-          let animationSpeed: number;
-          animationSpeed = clamp(y, animMin, animMax);
-          if (animationSpeed === animMax) animationSpeed = 0;
+      /* Animation */
+      const { animation } = entity;
+      const animMin = animation?.min_duration ? animation.min_duration : 1;
+      const animMax = animation?.max_duration ? animation.max_duration : 10;
+      const animPower = animation?.power ? animation.power : 1000;
+      // a linear function which is max at x=0 and min at x=power is defined by:
+      // f(x) = (-(max-min)/power) * x + max
+      const x = powerValue;
+      const y = (-(animMax - animMin) / animPower) * Math.abs(x) + animMax;
+      let animationSpeed: number;
+      animationSpeed = clamp(y, animMin, animMax);
+      if (animationSpeed === animMax) animationSpeed = 0;
 
-          // Invert for animation.inverted XOR below 0
-          const inverted = animationSpeed > 0 // do not invert animation stop
-            ? (animation?.inverted ?? false) !== (x < 0)
-            : false;
+      // Invert for animation.inverted XOR below 0
+      const inverted = animationSpeed > 0 // do not invert animation stop
+        ? (animation?.inverted ?? false) !== (x < 0)
+        : false;
 
-          return html`
-            <!--suppress CssUnresolvedCustomProperty -->
-            <div class="entity entity-${i}"
-                 style="--energy-line-color: ${entity.color};">
-              ${entity.name ? html`<span class="primary name">${entity.name}</span>` : ''}
-              <div class="metadata">
-                ${entity.current || entity.voltage || entity.frequency ? html`
-                    <div class="metadata-left">
-                      ${unsafeHTML((() => {
-                        const elements: Array<String> = [];
-                        if (entity.voltage) {
-                          elements.push(`<span class="secondary voltage">${entity.voltage.display}</span>&nbsp;<span class="secondary voltage-unit">${entity.voltage.unit}</span>`);
-                        }
-                        if (entity.current) {
-                          elements.push(`<span class="secondary current">${entity.current.display}</span>&nbsp;<span class="secondary current-unit">${entity.current.unit}</span>`);
-                        }
-                        if (entity.frequency) {
-                          elements.push(`<span class="secondary frequency">${entity.frequency.display}</span>&nbsp;<span class="secondary frequency-unit">${entity.frequency.unit}</span>`);
-                        }
+      return html`
+        <!--suppress CssUnresolvedCustomProperty -->
+        <div class="entity entity-${i}"
+              style="--energy-line-color: ${entity.color};">
+          ${entity.name ? html`<span class="primary name">${entity.name}</span>` : ''}
+          <div class="metadata">
+            ${entity.current || entity.voltage || entity.frequency ? html`
+            <div class="metadata-left">
+                  ${unsafeHTML((() => {
+        const elements: Array<String> = [];
+        if (entity.voltage) {
+          elements.push(`<span class="secondary voltage">${entity.voltage.display}</span>&nbsp;<span class="secondary voltage-unit">${entity.voltage.unit}</span>`);
+        }
+        if (entity.current) {
+          elements.push(`<span class="secondary current">${entity.current.display}</span>&nbsp;<span class="secondary current-unit">${entity.current.unit}</span>`);
+        }
+        if (entity.frequency) {
+          elements.push(`<span class="secondary frequency">${entity.frequency.display}</span>&nbsp;<span class="secondary frequency-unit">${entity.frequency.unit}</span>`);
+        }
 
-                        return intersperse(
-                          elements,
-                          `<div class="divider"></div>`,
-                        );
-                      })().join(''))}
-                    </div>`
-                  : ``}
-                <div class="metadata-center">
-                  <span class="secondary power">${entity.power.display}</span>&nbsp;<span
-                  class="secondary power-unit">${entity.power.unit}</span>
-                </div>
-                ${powerFactorDisplay ? html`
-                  <div class="metadata-right">
-                    <span class="secondary power-factor">${powerFactorDisplay}</span>&nbsp;<span
-                    class="secondary power-factor-unit">${PERCENTAGE}</span></div>` : ``}
-              </div>
-              <div class="main">
-                <div class="primary label label-leading">${entity.label_leading}</div>
-                <div class="icon icon-leading">
-                  <ha-icon icon="${entity.icon_leading!}"></ha-icon>
-                </div>
-                <div class="line">
-                  <svg overflow="visible" preserveAspectRatio="xMaxYMid slice"
-                       viewBox="0 0 100 10" xmlns="http://www.w3.org/2000/svg">
-                    <path class="grid" d="M0,5 H100" id="grid"
-                          vector-effect="non-scaling-stroke"></path>
-                    <circle class="grid" r="1"
-                            vector-effect="non-scaling-stroke">
-                      <animateMotion
-                        calcMode="linear"
-                        dur="${animationSpeed}s"
-                        keyPoints="${inverted ? `1;0` : `0;1`}"
-                        keyTimes="0;1"
-                        repeatCount="indefinite">
-                        <mpath xlink:href="#grid"></mpath>
-                      </animateMotion>
-                    </circle>
-                  </svg>
-                </div>
-                <div class="icon icon-trailing">
-                  <ha-icon icon="${entity.icon_trailing!}"></ha-icon>
-                </div>
-                <div class="primary label label-trailing">${entity.label_trailing}</div>
-              </div>
-            </div>`;
-        })}
+        return intersperse(
+          elements,
+          `<div class="divider"></div>`,
+        );
+      })().join(''))}
+            </div>`
+          : ``}
+            <div class="metadata-center">
+              <span class="secondary power">${entity.power.display}</span>&nbsp;<span
+              class="secondary power-unit">${entity.power.unit}</span>
+            </div>
+            ${powerFactorDisplay ? html`
+              <div class="metadata-right">
+                <span class="secondary power-factor">${powerFactorDisplay}</span>&nbsp;<span
+                class="secondary power-factor-unit">${PERCENTAGE}</span></div>` : ``}
+          </div>
+          <div class="main">
+            <div class="primary label label-leading">${entity.label_leading}</div>
+            <div class="icon icon-leading">
+              <ha-icon icon="${entity.icon_leading!}"></ha-icon>
+            </div>
+            <div class="line">
+              <svg overflow="visible" preserveAspectRatio="xMaxYMid slice"
+                    viewBox="0 0 100 10" xmlns="http://www.w3.org/2000/svg">
+                <path class="grid" d="M0,5 H100" id="grid"
+                      vector-effect="non-scaling-stroke"></path>
+                <circle class="grid" r="1"
+                        vector-effect="non-scaling-stroke">
+                  <animateMotion
+                    calcMode="linear"
+                    dur="${animationSpeed}s"
+                    keyPoints="${inverted ? `1;0` : `0;1`}"
+                    keyTimes="0;1"
+                    repeatCount="indefinite">
+                    <mpath xlink:href="#grid"></mpath>
+                  </animateMotion>
+                </circle>
+              </svg>
+            </div>
+            <div class="icon icon-trailing">
+              <ha-icon icon="${entity.icon_trailing!}"></ha-icon>
+            </div>
+            <div class="primary label label-trailing">${entity.label_trailing}</div>
+          </div>
+        </div>`;
+    })}
       </ha-card>
     `;
   }

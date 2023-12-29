@@ -3,18 +3,18 @@
 
 // https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/editor/config-elements/hui-stack-card-editor.ts
 
-import {mdiArrowLeft, mdiArrowRight, mdiDelete, mdiPlus} from "@mdi/js";
-import {fireEvent, LovelaceCardEditor} from "custom-card-helpers";
-import {css, CSSResultGroup, html, LitElement, nothing} from "lit";
-import {customElement, property, query, state} from "lit/decorators";
-import {TemplateResult} from "lit/development";
-import {CARD_EDITOR_NAME, CARD_NAME, ENTITY_EDITOR_NAME, NAME} from "./const";
-import {EnergyOverviewConfig, EnergyOverviewEntity} from "./types";
-import {EnergyOverviewEntityEditor} from "./energy-overview-entity-editor";
+import { mdiArrowLeft, mdiArrowRight, mdiDelete, mdiPlus } from "@mdi/js";
+import { fireEvent, LovelaceCardEditor } from "custom-card-helpers";
+import { css, CSSResultGroup, html, LitElement, nothing } from "lit";
+import { customElement, property, query, state } from "lit/decorators";
+import { TemplateResult } from "lit/development";
+import { CARD_EDITOR_NAME, CARD_NAME, ENTITY_EDITOR_NAME, NAME } from "./const";
+import { EnergyOverviewConfig, EnergyOverviewEntity } from "./types";
+import { EnergyOverviewEntityEditor } from "./energy-overview-entity-editor";
 import "./energy-overview-entity-editor";
-import {repository} from "../package.json";
-import {ANIMATION_SCHEMA, CARD_SCHEMA} from "./schemas";
-import {capitalize} from "./helper/util";
+import { repository } from "../package.json";
+import { ANIMATION_SCHEMA, ORDER_BY_SCHEMA, TITLE_SCHEMA } from "./schemas";
+import { capitalize } from "./helper/util";
 
 @customElement(CARD_EDITOR_NAME)
 export class EnergyOverviewCardEditor extends LitElement implements LovelaceCardEditor {
@@ -82,8 +82,8 @@ export class EnergyOverviewCardEditor extends LitElement implements LovelaceCard
     }
     const entities = [...this._config.entities];
     entities[this._selectedCard] = ev.detail.config as EnergyOverviewEntity;
-    this._config = {...this._config, entities};
-    fireEvent(this, "config-changed", {config: this._config});
+    this._config = { ...this._config, entities };
+    fireEvent(this, "config-changed", { config: this._config });
   }
 
   _handleSelectedCard(ev) {
@@ -91,9 +91,9 @@ export class EnergyOverviewCardEditor extends LitElement implements LovelaceCard
       ev.stopPropagation();
       const entities = [...this._config!.entities];
       entities.push(<EnergyOverviewEntity>{});
-      this._config = {...this._config!, entities};
+      this._config = { ...this._config!, entities };
       this._selectedCard = this._config!.entities.length - 1;
-      fireEvent(this, "config-changed", {config: this._config});
+      fireEvent(this, "config-changed", { config: this._config });
       return;
     }
     this._selectedCard = parseInt(ev.detail.selected, 10);
@@ -105,16 +105,16 @@ export class EnergyOverviewCardEditor extends LitElement implements LovelaceCard
     }
     const entities = [...this._config.entities];
     entities.splice(this._selectedCard, 1);
-    this._config = {...this._config, entities};
+    this._config = { ...this._config, entities };
     this._selectedCard = Math.max(0, this._selectedCard - 1);
-    fireEvent(this, "config-changed", {config: this._config});
+    fireEvent(this, "config-changed", { config: this._config });
   }
 
   _handleMove(ev: Event) {
     if (!this._config) {
       return;
     }
-    const {move} = ev.currentTarget as any;
+    const { move } = ev.currentTarget as any;
     const source = this._selectedCard;
     const target = source + move;
     const entities = [...this._config.entities];
@@ -125,7 +125,7 @@ export class EnergyOverviewCardEditor extends LitElement implements LovelaceCard
       entities,
     };
     this._selectedCard = target;
-    fireEvent(this, "config-changed", {config: this._config});
+    fireEvent(this, "config-changed", { config: this._config });
   }
 
   _computeLabel = (schema) => {
@@ -137,12 +137,12 @@ export class EnergyOverviewCardEditor extends LitElement implements LovelaceCard
 
   _valueChanged(ev) {
     if (!this._config) return;
-    fireEvent(this, "config-changed", {config: {...this._config, ...ev.detail.value}});
+    fireEvent(this, "config-changed", { config: { ...this._config, ...ev.detail.value } });
   }
 
   _animationChanged(ev) {
     if (!this._config) return;
-    fireEvent(this, "config-changed", {config: {...this._config, animation: ev.detail.value}});
+    fireEvent(this, "config-changed", { config: { ...this._config, animation: ev.detail.value } });
   }
 
   render(): TemplateResult | symbol {
@@ -162,9 +162,9 @@ export class EnergyOverviewCardEditor extends LitElement implements LovelaceCard
             scrollable
             @iron-activate=${this._handleSelectedCard}>
             ${this._config.entities.map(
-              (_card, i) => html`
+      (_card, i) => html`
                 <paper-tab> ${i + 1}</paper-tab> `,
-            )}
+    )}
           </paper-tabs>
           <paper-tabs
             id="add-card"
@@ -181,23 +181,23 @@ export class EnergyOverviewCardEditor extends LitElement implements LovelaceCard
           <ha-icon-button
             .disabled=${selected === 0}
             .label=${this.hass!.localize(
-              "ui.panel.lovelace.editor.edit_card.move_before",
-            )}
+      "ui.panel.lovelace.editor.edit_card.move_before",
+    )}
             .path=${mdiArrowLeft}
             @click=${this._handleMove}
             .move=${-1}></ha-icon-button>
           <ha-icon-button
             .label=${this.hass!.localize(
-              "ui.panel.lovelace.editor.edit_card.move_after",
-            )}
+      "ui.panel.lovelace.editor.edit_card.move_after",
+    )}
             .path=${mdiArrowRight}
             .disabled=${selected === numcards - 1}
             @click=${this._handleMove}
             .move=${1}></ha-icon-button>
           <ha-icon-button
             .label=${this.hass!.localize(
-              "ui.panel.lovelace.editor.edit_card.delete",
-            )}
+      "ui.panel.lovelace.editor.edit_card.delete",
+    )}
             .path=${mdiDelete}
             @click=${this._handleDeleteCard}></ha-icon-button>
         </div>
@@ -213,7 +213,15 @@ export class EnergyOverviewCardEditor extends LitElement implements LovelaceCard
       <ha-form
         .hass="${this.hass}"
         .data="${this._config}"
-        .schema="${CARD_SCHEMA}"
+        .schema="${TITLE_SCHEMA}"
+        .computeLabel="${this._computeLabel}"
+        @value-changed="${this._valueChanged}">
+      </ha-form>
+      <br />
+      <ha-form
+        .hass="${this.hass}"
+        .data="${this._config}"
+        .schema="${ORDER_BY_SCHEMA}"
         .computeLabel="${this._computeLabel}"
         @value-changed="${this._valueChanged}">
       </ha-form>

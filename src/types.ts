@@ -38,6 +38,7 @@ export interface EnergyOverviewEntityUI extends Omit<EnergyOverviewEntity, 'powe
 export interface EnergyOverviewConfig {
   type: string;
   entities: Array<EnergyOverviewEntity>;
+  title?: string;
   animation?: EnergyOverviewAnimation;
   order_by?: string;
 }

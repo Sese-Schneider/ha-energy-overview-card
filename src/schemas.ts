@@ -1,4 +1,4 @@
-import {ICON_LEADING_DEFAULT, ICON_TRAILING_DEFAULT, UnitOfPower} from "./const";
+import { ICON_LEADING_DEFAULT, ICON_TRAILING_DEFAULT, UnitOfPower } from "./const";
 
 const INPUT_ENTITY_DOMAINS = ["sensor", "input_number"];
 export const ANIMATION_SCHEMA = [
@@ -9,59 +9,63 @@ export const ANIMATION_SCHEMA = [
       {
         name: "power",
         label: "Animation Max Power",
-        selector: {number: {mode: "box", unit_of_measurement: UnitOfPower.WATT}},
+        selector: { number: { mode: "box", unit_of_measurement: UnitOfPower.WATT } },
       },
       {
         name: "min_duration",
         label: "Animation Min Duration",
-        selector: {number: {mode: "box", unit_of_measurement: 's'}},
+        selector: { number: { mode: "box", unit_of_measurement: 's' } },
       },
       {
         name: "max_duration",
         label: "Animation Max Duration",
-        selector: {number: {mode: "box", unit_of_measurement: 's'}},
+        selector: { number: { mode: "box", unit_of_measurement: 's' } },
       },
     ],
   },
-  {name: "inverted", label: "Animation Direction Inverted", selector: {boolean: {}}},
+  { name: "inverted", label: "Animation Direction Inverted", selector: { boolean: {} } },
 ];
 
 export const ENTITY_DATA_SCHEMA = [
-  {name: "power", required: true, selector: {entity: {domain: INPUT_ENTITY_DOMAINS}}},
+  { name: "power", required: true, selector: { entity: { domain: INPUT_ENTITY_DOMAINS } } },
   {
     type: "grid",
     name: "",
     schema: [
-      {name: "voltage", selector: {entity: {domain: INPUT_ENTITY_DOMAINS}}},
-      {name: "current", selector: {entity: {domain: INPUT_ENTITY_DOMAINS}}},
-      {name: "frequency", selector: {entity: {domain: INPUT_ENTITY_DOMAINS}}},
-      {name: "power_factor", selector: {entity: {domain: INPUT_ENTITY_DOMAINS}}},
+      { name: "voltage", selector: { entity: { domain: INPUT_ENTITY_DOMAINS } } },
+      { name: "current", selector: { entity: { domain: INPUT_ENTITY_DOMAINS } } },
+      { name: "frequency", selector: { entity: { domain: INPUT_ENTITY_DOMAINS } } },
+      { name: "power_factor", selector: { entity: { domain: INPUT_ENTITY_DOMAINS } } },
     ],
   },
 ];
 
 export const ENTITY_VISUALS_SCHEMA = [
-  {name: "name", selector: {text: {}}},
+  { name: "name", selector: { text: {} } },
   {
     type: "grid",
     name: "",
     schema: [
-      {name: "icon_leading", label: "Leading Icon", selector: {icon: {placeholder: ICON_LEADING_DEFAULT}}},
-      {name: "icon_trailing", selector: {icon: {placeholder: ICON_TRAILING_DEFAULT}}},
+      { name: "icon_leading", label: "Leading Icon", selector: { icon: { placeholder: ICON_LEADING_DEFAULT } } },
+      { name: "icon_trailing", selector: { icon: { placeholder: ICON_TRAILING_DEFAULT } } },
     ],
   },
   {
     type: "grid",
     name: "",
     schema: [
-      {name: "label_leading", selector: {text: {}}},
-      {name: "label_trailing", selector: {text: {}}},
+      { name: "label_leading", selector: { text: {} } },
+      { name: "label_trailing", selector: { text: {} } },
     ],
   },
-  {name: "color", selector: {text: {}}},
+  { name: "color", selector: { text: {} } },
 ];
 
-export const CARD_SCHEMA = [
+export const TITLE_SCHEMA = [
+  { name: "title", label: "Title", selector: { text: {} } },
+];
+
+export const ORDER_BY_SCHEMA = [
   {
     name: "order_by",
     label: "Order entities by",
@@ -69,12 +73,12 @@ export const CARD_SCHEMA = [
       select: {
         mode: "dropdown",
         options: [
-          {value: "", label: "None"},
-          {value: "power", label: "Power"},
-          {value: "voltage", label: "Voltage"},
-          {value: "current", label: "Current"},
-          {value: "frequency", label: "Frequency"},
-          {value: "power_factor", label: "Power Factor"},
+          { value: "", label: "None" },
+          { value: "power", label: "Power" },
+          { value: "voltage", label: "Voltage" },
+          { value: "current", label: "Current" },
+          { value: "frequency", label: "Frequency" },
+          { value: "power_factor", label: "Power Factor" },
         ],
       },
     },

@@ -1,13 +1,13 @@
 // noinspection JSUnusedGlobalSymbols,CssInvalidHtmlTagReference
 
-import {html, LitElement, nothing} from "lit";
-import {customElement, property} from "lit/decorators";
-import {TemplateResult} from "lit/development";
-import {fireEvent} from "custom-card-helpers";
-import {ENTITY_EDITOR_NAME} from "./const";
-import {capitalize, loadHaComponents} from "./helper/util";
-import {EnergyOverviewEntity} from "./types";
-import {ANIMATION_SCHEMA, ENTITY_DATA_SCHEMA, ENTITY_VISUALS_SCHEMA} from "./schemas";
+import { html, LitElement, nothing } from "lit";
+import { customElement, property } from "lit/decorators";
+import { TemplateResult } from "lit/development";
+import { fireEvent } from "custom-card-helpers";
+import { ENTITY_EDITOR_NAME } from "./const";
+import { capitalize, loadHaComponents } from "./helper/util";
+import { EnergyOverviewEntity } from "./types";
+import { ANIMATION_SCHEMA, ENTITY_DATA_SCHEMA, ENTITY_VISUALS_SCHEMA } from "./schemas";
 
 @customElement(ENTITY_EDITOR_NAME)
 export class EnergyOverviewEntityEditor extends LitElement {
@@ -26,12 +26,12 @@ export class EnergyOverviewEntityEditor extends LitElement {
 
   _valueChanged(ev) {
     if (!this.config) return;
-    fireEvent(this, "config-changed", {config: ev.detail.value});
+    fireEvent(this, "config-changed", { config: ev.detail.value });
   }
 
   _animationChanged(ev) {
     if (!this.config) return;
-    fireEvent(this, "config-changed", {config: {...this.config, animation: ev.detail.value}});
+    fireEvent(this, "config-changed", { config: { ...this.config, animation: ev.detail.value } });
   }
 
   render(): TemplateResult | symbol {
