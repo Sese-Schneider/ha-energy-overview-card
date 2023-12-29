@@ -1,3 +1,15 @@
+## [2.5.0](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v2.4.2...v2.5.0) (2023-12-29)
+
+
+### Features
+
+* Add optional card title ([5abdfc2](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/5abdfc2eed050c3fe25d47f71084a5b36a9ac197))
+
+
+### Bug Fixes
+
+* Sorting not working ([#29](https://github.com/Sese-Schneider/ha-energy-overview-card/issues/29)) ([19a992d](https://github.com/Sese-Schneider/ha-energy-overview-card/commit/19a992d283c1acf940dace002459cc5c26148c32))
+
 ## [2.4.2](https://github.com/Sese-Schneider/ha-energy-overview-card/compare/v2.4.1...v2.4.2) (2023-03-09)
 
 
