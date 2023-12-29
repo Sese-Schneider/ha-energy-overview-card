@@ -162,8 +162,8 @@ export class EnergyOverviewCard extends LitElement {
     if (this._config.order_by) {
       const field = this._config.order_by;
       entities.sort((e1, e2) => {
-        const a = e1[field] ? parseFloat(e1[field]) : 0;
-        const b = e2[field] ? parseFloat(e2[field]) : 0;
+        const a = e1[field] ? parseFloat(e1[field].value) : 0;
+        const b = e2[field] ? parseFloat(e2[field].value) : 0;
         return b - a;
       });
     }
@@ -264,7 +264,7 @@ export class EnergyOverviewCard extends LitElement {
               <div class="main">
                 <div class="primary label label-leading">${entity.label_leading}</div>
                 <div class="icon icon-leading">
-                  <ha-icon icon="${entity.icon_leading}"></ha-icon>
+                  <ha-icon icon="${entity.icon_leading!}"></ha-icon>
                 </div>
                 <div class="line">
                   <svg overflow="visible" preserveAspectRatio="xMaxYMid slice"
@@ -285,7 +285,7 @@ export class EnergyOverviewCard extends LitElement {
                   </svg>
                 </div>
                 <div class="icon icon-trailing">
-                  <ha-icon icon="${entity.icon_trailing}"></ha-icon>
+                  <ha-icon icon="${entity.icon_trailing!}"></ha-icon>
                 </div>
                 <div class="primary label label-trailing">${entity.label_trailing}</div>
               </div>
