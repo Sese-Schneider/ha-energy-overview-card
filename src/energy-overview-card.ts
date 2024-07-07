@@ -98,7 +98,7 @@ export class EnergyOverviewCard extends LitElement {
 
       .line svg {
         width: 100%;
-        height: 15px;
+        padding-bottom: 3px;
       }
 
       .line svg path {
