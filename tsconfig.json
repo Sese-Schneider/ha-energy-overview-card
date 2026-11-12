@@ -1,29 +1,36 @@
 {
-    "compilerOptions": {
-        "experimentalDecorators": true,
-        "lib": [
-            "es2021",
-            "dom",
-            "dom.iterable"
-        ],
-        "module": "esnext",
-        "moduleResolution": "node",
-        "noEmit": true,
-        "noFallthroughCasesInSwitch": true,
-        "noImplicitAny": false,
-        "noImplicitReturns": true,
-        "noUnusedParameters": true,
-        "resolveJsonModule": true,
-        "skipLibCheck": true,
-        "strict": true,
-        "target": "es2017",
-        "outDir": "dist",
-        "rootDir": "."
-    },
-    "include": [
-        "**/*.ts"
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "lib": [
+      "es2022",
+      "dom",
+      "dom.iterable"
     ],
-    "exclude": [
-        "node_modules"
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2022",
+    "outDir": "dist",
+    "rootDir": ".",
+    "useDefineForClassFields": false,
+    "allowSyntheticDefaultImports": true,
+    "types": [
+      "vitest/globals"
     ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "vitest.config.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

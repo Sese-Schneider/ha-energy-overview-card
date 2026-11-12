@@ -1,37 +1,43 @@
 // noinspection JSUnusedGlobalSymbols,CssInvalidHtmlTagReference
 
-import { html, LitElement, nothing } from "lit";
-import { customElement, property } from "lit/decorators";
-import { TemplateResult } from "lit/development";
-import { fireEvent } from "custom-card-helpers";
+import { html, LitElement, nothing, type TemplateResult } from "lit";
+import { customElement, property } from "lit/decorators.js";
+import { capitalize, fireEvent } from "./helper/util";
+import type { HomeAssistant } from "./ha-types";
 import { ENTITY_EDITOR_NAME } from "./const";
-import { capitalize, loadHaComponents } from "./helper/util";
 import { EnergyOverviewEntity } from "./types";
 import { ANIMATION_SCHEMA, ENTITY_DATA_SCHEMA, ENTITY_VISUALS_SCHEMA } from "./schemas";
 
 @customElement(ENTITY_EDITOR_NAME)
 export class EnergyOverviewEntityEditor extends LitElement {
-  @property() hass;
+  @property({ attribute: false }) hass?: HomeAssistant;
 
-  @property() lovelace;
+  @property({ attribute: false }) lovelace?: unknown;
 
-  @property() config?: EnergyOverviewEntity;
+  @property({ attribute: false }) config?: EnergyOverviewEntity;
 
-  _computeLabel = (schema) => {
+  private readonly _computeLabel = (schema) => {
     if (schema.label) return schema.label;
-    let label = `${capitalize(schema.name.split('_').join(' '))}`;
+    let label = `${capitalize(schema.name.replaceAll('_', ' '))}`;
     if (schema.selector?.entity) label += ` ${this.hass!.localize(`ui.panel.lovelace.editor.card.generic.entity`)}`;
     return label;
   };
 
+  private _publish(config: EnergyOverviewEntity): void {
+    this.config = config;
+    fireEvent(this, "config-changed", { config });
+  }
+
   _valueChanged(ev) {
+    ev.stopPropagation();
     if (!this.config) return;
-    fireEvent(this, "config-changed", { config: ev.detail.value });
+    this._publish({ ...this.config, ...ev.detail.value });
   }
 
   _animationChanged(ev) {
+    ev.stopPropagation();
     if (!this.config) return;
-    fireEvent(this, "config-changed", { config: { ...this.config, animation: ev.detail.value } });
+    this._publish({ ...this.config, animation: ev.detail.value });
   }
 
   render(): TemplateResult | symbol {
@@ -67,8 +73,4 @@ export class EnergyOverviewEntityEditor extends LitElement {
     `;
   }
 
-  connectedCallback() {
-    super.connectedCallback();
-    loadHaComponents();
-  }
 }
