@@ -1,8 +1,6 @@
 // https://github.com/home-assistant/frontend/blob/dev/src/common/number/format_number.ts
 
-/* eslint-disable max-len */
-import { FrontendLocaleData, NumberFormat } from "custom-card-helpers";
-import { HassEntity } from "home-assistant-js-websocket";
+import { FrontendLocaleData, NumberFormat, HassEntity } from "../ha-types";
 
 export const round = (value: number, precision = 2): number => Math.round(value * 10 ** precision) / 10 ** precision;
 
@@ -15,6 +13,12 @@ export const getDefaultFormatOptions = (
     ...options,
   };
 
+  const numeric = Number(num);
+  const hasPrecision = options?.minimumFractionDigits !== undefined || options?.maximumFractionDigits !== undefined;
+  if (!hasPrecision && numeric !== 0 && Math.abs(numeric) < 1e-20) {
+    return { notation: 'scientific', maximumSignificantDigits: 17, ...options };
+  }
+
   if (typeof num !== "string") {
     return defaultOptions;
   }
@@ -25,7 +29,12 @@ export const getDefaultFormatOptions = (
     || (options.minimumFractionDigits === undefined
       && options.maximumFractionDigits === undefined)
   ) {
-    const digits = num.indexOf(".") > -1 ? num.split(".")[1].length : 0;
+    const match = /^[+-]?\d*(?:\.(\d*))?(?:e([+-]?\d+))?$/i.exec(num.trim());
+    const requiredDigits = Math.max(0, (match?.[1]?.length ?? 0) - Number(match?.[2] ?? 0));
+    if (requiredDigits > 20 && Number(numeric.toFixed(20)) !== numeric) {
+      return { notation: 'scientific', maximumSignificantDigits: 17, ...options };
+    }
+    const digits = Math.min(20, requiredDigits);
     defaultOptions.minimumFractionDigits = digits;
     defaultOptions.maximumFractionDigits = digits;
   }
@@ -43,6 +52,8 @@ export const numberFormatToLocale = (
       return ["de", "es", "it"]; // Use German with fallback to Spanish then Italian formatting 1.234.567,89
     case NumberFormat.space_comma:
       return ["fr", "sv", "cs"]; // Use French with fallback to Swedish and Czech formatting 1 234 567,89
+    case NumberFormat.quote_decimal:
+      return ["de-CH"];
     case NumberFormat.system:
       return undefined;
     default:
@@ -59,12 +70,6 @@ export const formatNumber = (
     ? numberFormatToLocale(localeOptions)
     : undefined;
 
-  // Polyfill for Number.isNaN, which is more reliable than the global isNaN()
-  Number.isNaN = Number.isNaN
-    || function isNaN(input) {
-      return typeof input === "number" && isNaN(input);
-    };
-
   if (
     localeOptions?.number_format !== NumberFormat.none
     && !Number.isNaN(Number(num))
@@ -77,7 +82,6 @@ export const formatNumber = (
       ).format(Number(num));
     } catch (err: any) {
       // Don't fail when using "TEST" language
-      // eslint-disable-next-line no-console
       console.error(err);
       return new Intl.NumberFormat(
         undefined,
@@ -113,7 +117,7 @@ export const getNumberFormatOptions = (
   entity?: any,
 ): Intl.NumberFormatOptions | undefined => {
   const precision = entity?.display_precision;
-  if (precision != null) {
+  if (typeof precision === "number" && Number.isInteger(precision) && precision >= 0 && precision <= 20) {
     return {
       maximumFractionDigits: precision,
       minimumFractionDigits: precision,

@@ -1,35 +1,85 @@
 name: Release
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version without v (main: 3.0.0; dev: 3.1.0-dev.1)'
+        required: true
+        type: string
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
   release-bundle:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
 
-    outputs:
-      new_release_published: ${{ steps.semantic.outputs.new_release_published }}
-      new_release_version: ${{ steps.semantic.outputs.new_release_version }}
+    permissions:
+      contents: write
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js 18.x
-        uses: actions/setup-node@v2.1.4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: 18.x
-      - name: Cache Node.js modules
-        uses: actions/cache@v2
+          fetch-depth: 0
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-          key: ${{ runner.OS }}-node-12.x-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.OS }}-node-12.x
-            ${{ runner.OS }}-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-      - name: Build the project
-        run: npm run build --if-present
-      - name: Release
-        run: npx semantic-release
+          node-version: 24.x
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Validate release version
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          number='(0|[1-9][0-9]*)'
+          stable="${number}\\.${number}\\.${number}"
+          if [[ "$GITHUB_REF" == 'refs/heads/main' ]]; then
+            pattern="^${stable}$"
+          else
+            pattern="^${stable}-dev\\.${number}$"
+          fi
+          if [[ ! "$VERSION" =~ $pattern ]]; then
+            echo 'Invalid version: use X.Y.Z on main or X.Y.Z-dev.N on dev.' >&2
+            exit 1
+          fi
+          package_version=$(node -p "require('./package.json').version")
+          if [[ "$VERSION" != "$package_version" ]]; then
+            echo "Release version ${VERSION} must match package.json version ${package_version}, including any prerelease suffix." >&2
+            exit 1
+          fi
+          if git show-ref --verify --quiet "refs/tags/v${VERSION}"; then
+            echo "Tag v${VERSION} already exists; choose a new version." >&2
+            exit 1
+          fi
+      - name: Install dependencies
+        run: npm ci
+      - name: Install browser dependencies
+        run: npx --no-install playwright install --with-deps chromium webkit
+      - name: Run Chromium and WebKit regression tests
+        run: npm test
+      - name: Enforce coverage thresholds
+        run: npm run test:coverage
+      - name: Validate HACS release package
+        run: node scripts/validate-hacs-package.mjs
+      - name: Publish release and upload card
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          options=()
+          if [[ "$GITHUB_REF" == 'refs/heads/dev' ]]; then
+            options+=(--prerelease --latest=false)
+          fi
+          gh release create "v${VERSION}" dist/energy-overview-card.js \
+            --target "$GITHUB_SHA" --title "v${VERSION}" \
+            --generate-notes "${options[@]}"
+          asset_size=$(gh release view "v${VERSION}" --json assets \
+            --jq '[.assets[] | select(.name == "energy-overview-card.js") | .size] | first // 0')
+          if [[ "$asset_size" -le 0 ]]; then
+            echo 'Release is missing the nonempty HACS card asset.' >&2
+            exit 1
+          fi

@@ -21,7 +21,7 @@ export interface EnergyOverviewEntity {
 }
 
 export interface EnergyOverviewEntityState {
-  value: number,
+  value: number | undefined;
   unit: string;
   display: string;
   precision?: number;
