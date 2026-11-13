@@ -187,9 +187,13 @@ Maintainers can run the **Release** workflow from GitHub Actions on `main` or
 `dev`. Enter a new version without the `v` prefix: `X.Y.Z` on `main` (for example,
 `3.0.0`) or `X.Y.Z-dev.N` on `dev` (for example, `3.1.0-dev.1`). Existing tags
 are rejected; versions are selected explicitly rather than calculated from commits.
+The input must exactly match `package.json`, including the `-dev.N` suffix for a
+prerelease, so the release tag and the bundle's embedded version agree.
 
-The workflow installs locked dependencies, builds and validates the HACS package,
-then creates a `v<version>` tag at the exact workflow commit and a GitHub release
+The workflow installs locked dependencies and Chromium/WebKit with their system
+dependencies, then builds, runs both browser test suites, enforces coverage
+thresholds, and validates the HACS package. Only after all checks pass does it
+create a `v<version>` tag at the exact workflow commit and a GitHub release
 with generated notes and the `energy-overview-card.js` download. Releases from
 `dev` are prereleases and are not marked as latest. It also verifies that the
 uploaded asset is nonempty; this is not a live HACS installation test. The workflow

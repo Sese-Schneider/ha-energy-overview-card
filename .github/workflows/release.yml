@@ -21,9 +21,15 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.x
+          cache: npm
+          cache-dependency-path: package-lock.json
       - name: Validate release version
         env:
           VERSION: ${{ inputs.version }}
@@ -39,20 +45,23 @@ jobs:
             echo 'Invalid version: use X.Y.Z on main or X.Y.Z-dev.N on dev.' >&2
             exit 1
           fi
+          package_version=$(node -p "require('./package.json').version")
+          if [[ "$VERSION" != "$package_version" ]]; then
+            echo "Release version ${VERSION} must match package.json version ${package_version}, including any prerelease suffix." >&2
+            exit 1
+          fi
           if git show-ref --verify --quiet "refs/tags/v${VERSION}"; then
             echo "Tag v${VERSION} already exists; choose a new version." >&2
             exit 1
           fi
-      - name: Use Node.js 24.x
-        uses: actions/setup-node@v6
-        with:
-          node-version: 24.x
-          cache: npm
-          cache-dependency-path: package-lock.json
       - name: Install dependencies
         run: npm ci
-      - name: Build the project
-        run: npm run build
+      - name: Install browser dependencies
+        run: npx --no-install playwright install --with-deps chromium webkit
+      - name: Run Chromium and WebKit regression tests
+        run: npm test
+      - name: Enforce coverage thresholds
+        run: npm run test:coverage
       - name: Validate HACS release package
         run: node scripts/validate-hacs-package.mjs
       - name: Publish release and upload card
