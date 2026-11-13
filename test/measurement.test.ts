@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { animationFor, powerFactorDisplay, readMeasurement } from '../src/helper/measurement';
+import { animationFor, powerFactorDisplay, powerInWatts, readMeasurement } from '../src/helper/measurement';
 import { formatNumber } from '../src/helper/format-number';
 import type { HomeAssistant } from '../src/ha-types';
 
@@ -44,13 +44,25 @@ describe('measurements and motion', () => {
     expect(formatNumber('1234.50', { language: 'en', number_format: 'quote_decimal' })).toMatch(/^1['’]234\.50$/);
   });
   it('preserves tiny signed readings in display and motion', () => {
-    for (const state of ['1e-21', '-1e-21', '0.000000000000000000001']) {
+    for (const state of ['1e-21', '-1e-21', '0.000000000000000000001', '1.2e-20', '-1.2e-20', '0.000000000000000000012', '1.2345678901234567e-21']) {
       const context = { ...hass, states: { 'sensor.power': { state, attributes: {} } } };
       const measurement = readMeasurement(context, 'sensor.power', 'W', true)!;
       expect(Number(measurement.display)).toBe(Number(state));
       expect(animationFor(measurement).duration).toBe(10);
       expect(animationFor(measurement).inverted).toBe(Number(state) < 0);
     }
+  });
+  it('uses scientific notation only when the precision cap would alter a reading', () => {
+    expect(formatNumber('1e-20', hass.locale)).toBe('0.00000000000000000001');
+    expect(formatNumber('1.0000000000000000000000', hass.locale)).toBe('1.00000000000000000000');
+    expect(formatNumber('1.2e-20', hass.locale)).toBe('1.2E-20');
+    expect(formatNumber('1.2e-20', { language: 'de', number_format: 'decimal_comma' })).toBe('1,2E-20');
+    expect(formatNumber('1.2e-20', { language: 'en', number_format: 'none' })).toBe('1.2E-20');
+    expect(formatNumber('1.2e-20', hass.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })).toBe('0.00');
+  });
+  it.each([[500, 'mW', 0.5], [1, 'W', 1], [0.5, 'kW', 500], [1, 'MW', 1000000], [1000, 'BTU/h', 293.07107], [-1, 'kW', -1000], [2, 'unknown', 2]])('converts %s %s to watts for both sorting and animation', (value, unit, watts) => {
+    expect(powerInWatts(reading(value as number, unit as string))).toBeCloseTo(watts as number);
+    expect(powerInWatts(reading(undefined, unit as string))).toBeUndefined();
   });
   it('normalizes W/kW/BTU power and stops at zero', () => {
     expect(animationFor(reading(500)).duration).toBe(5.5);

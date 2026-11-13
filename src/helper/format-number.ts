@@ -16,7 +16,7 @@ export const getDefaultFormatOptions = (
   const numeric = Number(num);
   const hasPrecision = options?.minimumFractionDigits !== undefined || options?.maximumFractionDigits !== undefined;
   if (!hasPrecision && numeric !== 0 && Math.abs(numeric) < 1e-20) {
-    return { notation: 'scientific', maximumFractionDigits: 5, ...options };
+    return { notation: 'scientific', maximumSignificantDigits: 17, ...options };
   }
 
   if (typeof num !== "string") {
@@ -30,7 +30,11 @@ export const getDefaultFormatOptions = (
       && options.maximumFractionDigits === undefined)
   ) {
     const match = /^[+-]?\d*(?:\.(\d*))?(?:e([+-]?\d+))?$/i.exec(num.trim());
-    const digits = Math.min(20, Math.max(0, (match?.[1]?.length ?? 0) - Number(match?.[2] ?? 0)));
+    const requiredDigits = Math.max(0, (match?.[1]?.length ?? 0) - Number(match?.[2] ?? 0));
+    if (requiredDigits > 20 && Number(numeric.toFixed(20)) !== numeric) {
+      return { notation: 'scientific', maximumSignificantDigits: 17, ...options };
+    }
+    const digits = Math.min(20, requiredDigits);
     defaultOptions.minimumFractionDigits = digits;
     defaultOptions.maximumFractionDigits = digits;
   }

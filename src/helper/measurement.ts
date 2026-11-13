@@ -30,12 +30,16 @@ function positive(value: number | undefined, fallback: number): number {
   return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
+export function powerInWatts(power: EnergyOverviewEntityState): number | undefined {
+  const scales: Record<string, number> = { [UnitOfPower.MILLIWATT]: 0.001, [UnitOfPower.KILO_WATT]: 1000, [UnitOfPower.MEGA_WATT]: 1000000, [UnitOfPower.BTU_PER_HOUR]: 0.29307107 };
+  const scale = scales[power.unit] ?? 1;
+  return power.value === undefined ? undefined : power.value * scale;
+}
+
 export function animationFor(power: EnergyOverviewEntityState, config?: EnergyOverviewAnimation): {
   duration: number | undefined; inverted: boolean;
 } {
-  const scales: Record<string, number> = { [UnitOfPower.MILLIWATT]: 0.001, [UnitOfPower.KILO_WATT]: 1000, [UnitOfPower.MEGA_WATT]: 1000000, [UnitOfPower.BTU_PER_HOUR]: 0.29307107 };
-  const scale = scales[power.unit] ?? 1;
-  const watts = power.value === undefined ? undefined : power.value * scale;
+  const watts = powerInWatts(power);
   if (watts === undefined || !Number.isFinite(watts) || watts === 0) return { duration: undefined, inverted: false };
   // SMIL clock values cannot use the scientific notation JS emits for extremes.
   const min = clamp(positive(config?.min_duration, 1), 0.001, 86400);

@@ -98,7 +98,9 @@ export class EnergyOverviewCardEditor extends LitElement {
   private _navigate(ev: KeyboardEvent): void {
     const count = this._config?.entities.length ?? 0;
     if (!count) return;
-    let selected = this._selectedCard;
+    const buttons = [...this.renderRoot.querySelectorAll<HTMLButtonElement>('.entity-select')];
+    let selected = buttons.findIndex((button) => button === ev.target);
+    if (selected < 0) return;
     if (ev.key === 'ArrowRight') selected = (selected + 1) % count;
     else if (ev.key === 'ArrowLeft') selected = (selected + count - 1) % count;
     else if (ev.key === 'Home') selected = 0;
@@ -106,7 +108,7 @@ export class EnergyOverviewCardEditor extends LitElement {
     else return;
     ev.preventDefault();
     this._selectedCard = selected;
-    this.renderRoot.querySelectorAll<HTMLButtonElement>('.entity-select')[selected]?.focus();
+    buttons[selected]?.focus();
   }
 
   private _label(key: string, fallback: string): string {

@@ -102,6 +102,19 @@ it('keeps touch controls usable and within narrow editor bounds', async () => {
   expect(element.shadowRoot!.querySelector('.toolbar')!.getBoundingClientRect().right).toBeLessThanOrEqual(right);
 });
 
+it.each([['ArrowRight', 'Entity 3'], ['ArrowLeft', 'Entity 1']])('starts %s navigation from the tab-focused button, not the selected row', async (key, expected) => {
+  const config = { ...initial, entities: [...initial.entities, { power: 'sensor.third' }] };
+  const element = await editor(config);
+  element.shadowRoot!.querySelector<HTMLButtonElement>('.entity-select')!.focus();
+  await userEvent.keyboard('{Tab}');
+  expect(element.shadowRoot!.activeElement?.getAttribute('aria-label')).toBe('Entity 2');
+  expect(element.shadowRoot!.querySelector('[aria-label="Entity 1"]')?.getAttribute('aria-pressed')).toBe('true');
+  await userEvent.keyboard(`{${key}}`);
+  await element.updateComplete;
+  expect(element.shadowRoot!.activeElement?.getAttribute('aria-label')).toBe(expected);
+  expect(element.shadowRoot!.querySelector(`[aria-label="${expected}"]`)?.getAttribute('aria-pressed')).toBe('true');
+});
+
 it('uses Home Assistant translations for native controls and accessible entity labels', async () => {
   const element = await editor();
   const translations: Record<string, string> = {

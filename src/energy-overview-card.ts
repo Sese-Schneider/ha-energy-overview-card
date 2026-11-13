@@ -4,7 +4,7 @@ import { repeat } from 'lit/directives/repeat.js';
 import type { HomeAssistant } from './ha-types';
 import { version, repository } from '../package.json';
 import type { EnergyOverviewConfig, EnergyOverviewEntityState, EnergyOverviewEntityUI } from './types';
-import { animationFor, powerFactorDisplay, readMeasurement } from './helper/measurement';
+import { animationFor, powerFactorDisplay, powerInWatts, readMeasurement } from './helper/measurement';
 import { CARD_EDITOR_NAME, CARD_NAME, NAME, ICON_LEADING_DEFAULT, ICON_TRAILING_DEFAULT } from './const';
 
 @customElement(CARD_NAME)
@@ -28,9 +28,9 @@ export class EnergyOverviewCard extends LitElement {
     .label-trailing { margin-left: 4px; }
     .icon { flex: 0 0 24px; width: 24px; height: 24px; }
     .line { flex: 1 1 0; min-width: 0; height: 15px; margin: 0 8px; }
-    .line svg { display: block; width: 100%; height: 15px; }
+    .line svg { display: block; width: 100%; height: 15px; overflow: visible; }
     .line path { stroke-width: 1; fill: none; stroke: var(--energy-line-color); }
-    .line circle { stroke-width: 4; stroke: var(--energy-line-color); fill: var(--energy-line-color); animation: energy-flow var(--flow-duration) linear infinite; animation-direction: var(--flow-direction); }
+    .line .flow-dot { stroke-width: 6; stroke-linecap: round; animation: energy-flow var(--flow-duration) linear infinite; animation-direction: var(--flow-direction); }
     /* SVG user units track the viewBox, independent of the rendered card width. */
     @keyframes energy-flow { from { transform: translateX(0px); } to { transform: translateX(100px); } }
     @container (max-width: 360px) {
@@ -43,7 +43,7 @@ export class EnergyOverviewCard extends LitElement {
       .line { grid-column: 2; grid-row: 2; margin: 0; }
       .icon-trailing { grid-column: 3; grid-row: 2; }
     }
-    @media (prefers-reduced-motion: reduce) { .line circle { display: none; animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .line .flow-dot { display: none; animation: none; } }
   `;
 
   public static getStubConfig(): Record<string, unknown> {
@@ -88,7 +88,12 @@ export class EnergyOverviewCard extends LitElement {
     const field = this._config.order_by;
     const sortable = ['power', 'current', 'voltage', 'frequency', 'power_factor'] as const;
     const sortField = sortable.find((name) => name === field);
-    if (sortField) entities.sort((a, b) => (b[sortField]?.value ?? 0) - (a[sortField]?.value ?? 0));
+    if (sortField) {
+      const sortValue = (entity: EnergyOverviewEntityUI) => sortField === 'power'
+        ? powerInWatts(entity.power) ?? 0
+        : entity[sortField]?.value ?? 0;
+      entities.sort((a, b) => sortValue(b) - sortValue(a));
+    }
     return html`
       <ha-card .header=${this._config.title}>
         ${!entities.length ? html`<div class="entity">No entities configured.</div>` : nothing}
@@ -146,8 +151,10 @@ export class EnergyOverviewCard extends LitElement {
     const duration = `${animation.duration}s`;
     const direction = animation.inverted ? 'reverse' : 'normal';
     const motionStyle = `--flow-duration: ${duration}; --flow-direction: ${direction};`;
-    return svg`<circle class="grid" cx="0" cy="5" r="1" vector-effect="non-scaling-stroke"
-      style=${motionStyle}></circle>`;
+    // A round-capped zero-length stroke stays circular in screen space even when
+    // preserveAspectRatio="none" stretches the SVG's user coordinates.
+    return svg`<path class="flow-dot" d="M0,5 h0" vector-effect="non-scaling-stroke"
+      style=${motionStyle}></path>`;
   }
 
   private _measurement(value: EnergyOverviewEntityState | undefined, name: string) {

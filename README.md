@@ -181,6 +181,21 @@ perform a hard refresh or clear the browser cache.
 
 [Troubleshooting](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins)
 
+## Publishing releases
+
+Maintainers can run the **Release** workflow from GitHub Actions on `main` or
+`dev`. Enter a new version without the `v` prefix: `X.Y.Z` on `main` (for example,
+`3.0.0`) or `X.Y.Z-dev.N` on `dev` (for example, `3.1.0-dev.1`). Existing tags
+are rejected; versions are selected explicitly rather than calculated from commits.
+
+The workflow installs locked dependencies, builds and validates the HACS package,
+then creates a `v<version>` tag at the exact workflow commit and a GitHub release
+with generated notes and the `energy-overview-card.js` download. Releases from
+`dev` are prereleases and are not marked as latest. It also verifies that the
+uploaded asset is nonempty; this is not a live HACS installation test. The workflow
+does not update `package.json` or `CHANGELOG.md`; maintainers should update those
+in the release commit beforehand.
+
 [commits-shield]: https://img.shields.io/github/commit-activity/y/Sese-Schneider/ha-energy-overview-card.svg?style=for-the-badge
 [downloads-shield]: https://img.shields.io/github/downloads/Sese-Schneider/ha-energy-overview-card/total.svg?style=for-the-badge
 [commits]: https://github.com/Sese-Schneider/ha-energy-overview-card/commits/main
