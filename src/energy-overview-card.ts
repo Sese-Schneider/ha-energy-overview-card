@@ -88,11 +88,16 @@ export class EnergyOverviewCard extends LitElement {
     const field = this._config.order_by;
     const sortable = ['power', 'current', 'voltage', 'frequency', 'power_factor'] as const;
     const sortField = sortable.find((name) => name === field);
-    if (sortField) {
+    if (sortField || entities.some((entity) => entity.pinned === true)) {
       const sortValue = (entity: EnergyOverviewEntityUI) => sortField === 'power'
         ? powerInWatts(entity.power) ?? 0
-        : entity[sortField]?.value ?? 0;
-      entities.sort((a, b) => sortValue(b) - sortValue(a));
+        : sortField ? entity[sortField]?.value ?? 0 : 0;
+      entities.sort((a, b) => {
+        const pinnedA = a.pinned === true;
+        const pinnedB = b.pinned === true;
+        if (pinnedA !== pinnedB) return pinnedA ? -1 : 1;
+        return pinnedA ? a.key - b.key : sortValue(b) - sortValue(a);
+      });
     }
     return html`
       <ha-card .header=${this._config.title}>
