@@ -14,9 +14,9 @@ export class EnergyOverviewEntityEditor extends LitElement {
   static readonly styles = css`
     .threshold { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-bottom: 8px; }
     .threshold label { flex: 1 1 120px; min-width: 0; }
-    input { display: block; width: 100%; box-sizing: border-box; min-height: 44px; font: inherit; }
+    .threshold input { display: block; width: 100%; box-sizing: border-box; min-height: 44px; font: inherit; }
     button { min-height: 44px; font: inherit; cursor: pointer; }
-    input, button { color: var(--primary-text-color); background: var(--card-background-color); border: 1px solid var(--divider-color, #888); border-radius: 4px; }
+    .threshold input, button { color: var(--primary-text-color); background: var(--card-background-color); border: 1px solid var(--divider-color, #888); border-radius: 4px; }
   `;
   @property({ attribute: false }) hass?: HomeAssistant;
 
