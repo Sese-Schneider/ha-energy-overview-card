@@ -11,8 +11,10 @@ export const ICON_TRAILING_DEFAULT = 'mdi:home-lightning-bolt';
 /* https://github.com/home-assistant/core/blob/dev/homeassistant/const.py#L482 */
 
 export enum UnitOfPower {
+  MILLIWATT = "mW",
   WATT = "W",
   KILO_WATT = "kW",
+  MEGA_WATT = "MW",
   BTU_PER_HOUR = "BTU/h"
 }
 

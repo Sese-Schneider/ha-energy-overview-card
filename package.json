@@ -1,6 +1,6 @@
 {
   "name": "energy-overview-card",
-  "version": "2.5.0",
+  "version": "3.0.0",
   "description": "Lovelace energy-overview-card",
   "keywords": [
     "home-assistant",
@@ -12,50 +12,52 @@
   ],
   "module": "energy-overview-card.js",
   "repository": "https://github.com/Sese-Schneider/ha-energy-overview-card",
-  "author": "Sebastian Schneider <sese.tailor@gmx.net>",
+  "author": "Sebastian Schneider <sese.tailor@gmx.net>, Tim Laing <tim@laingcorp.co.uk>",
   "license": "MIT",
   "dependencies": {
-    "@mdi/js": "^7.1.96",
-    "custom-card-helpers": "^1.9.0",
-    "home-assistant-js-websocket": "^4.3.1",
-    "lit": "^2.0.1"
+    "lit": "3.3.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.12",
-    "@babel/plugin-proposal-class-properties": "^7.4.0",
-    "@babel/plugin-proposal-decorators": "^7.4.0",
-    "@semantic-release/changelog": "^6.0.2",
-    "@semantic-release/commit-analyzer": "^9.0.2",
-    "@semantic-release/exec": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
-    "@semantic-release/npm": "^9.0.2",
-    "@semantic-release/release-notes-generator": "^10.0.3",
-    "@typescript-eslint/eslint-plugin": "^5.49.0",
-    "@typescript-eslint/parser": "^5.49.0",
-    "conventional-changelog-conventionalcommits": "^5.0.0",
-    "eslint": "8.2.0",
-    "eslint-config-airbnb": "19.0.4",
-    "eslint-config-airbnb-base": "15.0.0",
-    "eslint-plugin-import": "2.25.2",
-    "eslint-plugin-jsx-a11y": "6.5.1",
-    "eslint-plugin-react": "7.28.0",
-    "eslint-plugin-react-hooks": "4.3.0",
-    "prettier": "^1.16.4",
-    "rollup": "^3.18.0",
-    "rollup-plugin-babel": "^4.3.2",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-json": "^4.0.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-terser": "^5.1.1",
-    "rollup-plugin-typescript2": "^0.24.0",
-    "rollup-plugin-uglify": "^6.0.2",
-    "semantic-release": "^20.1.0",
-    "typescript": "^4.9.4"
+    "@eslint/js": "10.0.1",
+    "eslint": "10.14.0",
+    "typescript-eslint": "8.72.1",
+    "typescript": "6.0.3",
+    "esbuild": "0.28.2",
+    "vitest": "5.1.0",
+    "@vitest/browser-playwright": "5.1.0",
+    "@vitest/coverage-v8": "5.1.0",
+    "playwright": "1.64.1"
   },
   "scripts": {
-    "start": "rollup -c --watch --bundleConfigAsCjs",
-    "build": "npm run lint && rollup -c --bundleConfigAsCjs",
-    "lint": "eslint src/*.ts",
-    "rollup": "rollup -c"
-  }
+    "start": "node scripts/build.mjs --watch",
+    "build": "npm run check && node scripts/build.mjs",
+    "check": "npm run lint && npm run typecheck",
+    "lint": "eslint src scripts test vitest.config.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && vitest run && vitest run --mode webkit",
+    "test:coverage": "npm run build && vitest run --coverage",
+    "test:watch": "npm run build && vitest"
+  },
+  "homepage": "https://github.com/Sese-Schneider/ha-energy-overview-card",
+  "bugs": {
+    "url": "https://github.com/Sese-Schneider/ha-energy-overview-card/issues"
+  },
+  "private": true,
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/Sese-Schneider"
+    },
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/timlaing"
+    }
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "overrides": {
+    "minimatch": "11.0.1"
+  },
+  "type": "module"
 }

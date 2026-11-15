@@ -1,337 +1,173 @@
-// noinspection JSUnusedGlobalSymbols
-
-import { css, CSSResultGroup, html, LitElement, nothing, TemplateResult } from "lit";
-import { customElement, property, state } from "lit/decorators";
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { HomeAssistant } from "custom-card-helpers";
-import { version } from "../package.json";
-import { EnergyOverviewConfig, EnergyOverviewEntityState, EnergyOverviewEntityUI } from "./types";
-import { clamp, intersperse } from "./helper/util";
-import { formatNumber, getNumberFormatOptions } from "./helper/format-number";
-import {
-  CARD_EDITOR_NAME,
-  CARD_NAME,
-  ICON_LEADING_DEFAULT,
-  ICON_TRAILING_DEFAULT,
-  PERCENTAGE,
-  UnitOfElectricCurrent,
-  UnitOfElectricPotential,
-  UnitOfFrequency,
-  UnitOfPower,
-} from "./const";
+import { css, html, svg, LitElement, nothing } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
+import { repeat } from 'lit/directives/repeat.js';
+import type { HomeAssistant } from './ha-types';
+import { version, repository } from '../package.json';
+import type { EnergyOverviewConfig, EnergyOverviewEntityState, EnergyOverviewEntityUI } from './types';
+import { animationFor, powerFactorDisplay, powerInWatts, readMeasurement } from './helper/measurement';
+import { CARD_EDITOR_NAME, CARD_NAME, NAME, ICON_LEADING_DEFAULT, ICON_TRAILING_DEFAULT } from './const';
 
 @customElement(CARD_NAME)
 export class EnergyOverviewCard extends LitElement {
-  @property() public hass?: HomeAssistant;
-
+  @property({ attribute: false }) public hass?: HomeAssistant;
   @state() private _config?: EnergyOverviewConfig;
 
-  static get styles(): CSSResultGroup {
-    return css`
-      .primary {
-        font-weight: bold;
-        font-size: 14px;
-        color: var(--primary-text-color);
-        text-overflow: ellipsis;
-        overflow: hidden;
-        white-space: nowrap;
-      }
-
-      .secondary {
-        font-weight: bolder;
-        font-size: 12px;
-        color: var(--secondary-text-color);
-        text-overflow: ellipsis;
-        overflow: hidden;
-        white-space: nowrap;
-      }
-
-      .entity {
-        max-width: 492px;
-        padding: 8px;
-        margin: 0 auto;
-      }
-
-      .metadata {
-        display: flex;
-        justify-content: space-evenly;
-        align-items: center;
-        margin-bottom: -8px;
-      }
-
-      .metadata-left {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      .divider {
-        width: 12px;
-      }
-
-      .main {
-        height: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .label-leading {
-        margin-right: 4px;
-      }
-
-      .label-trailing {
-        margin-left: 4px;
-      }
-
-      .icon {
-        width: 24px;
-        height: 24px;
-      }
-
-      .line {
-        flex: 1;
-        height: 10px;
-        box-sizing: border-box;
-        margin: 0 8px;
-      }
-
-      .line svg {
-        width: 100%;
-        height: 15px;
-      }
-
-      .line svg path {
-        stroke-width: 1;
-        fill: none;
-        stroke: var(--energy-line-color);
-      }
-
-      .line svg circle {
-        stroke-width: 4;
-        stroke: var(--energy-line-color);
-        fill: var(--energy-line-color);
-      }
-    `;
-  }
+  static readonly styles = css`
+    :host { display: block; min-width: 0; container-type: inline-size; }
+    ha-card { display: block; overflow: hidden; }
+    .primary { font-weight: bold; font-size: 14px; color: var(--primary-text-color); }
+    .secondary { font-weight: bolder; font-size: 12px; color: var(--secondary-text-color); }
+    .entity { max-width: 492px; padding: 8px; margin: 0 auto; min-width: 0; }
+    .name { display: block; overflow-wrap: anywhere; }
+    .metadata { display: flex; flex-wrap: wrap; justify-content: space-evenly; align-items: center; gap: 4px 12px; margin-bottom: 2px; }
+    .metadata-left { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 12px; min-width: 0; }
+    .measurement, .metadata-center, .metadata-right { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; min-width: 0; }
+    .main { min-height: 24px; display: flex; align-items: center; min-width: 0; }
+    .label { max-width: 25%; min-width: 0; overflow-wrap: anywhere; }
+    .label-leading { margin-right: 4px; }
+    .label-trailing { margin-left: 4px; }
+    .icon { flex: 0 0 24px; width: 24px; height: 24px; }
+    .line { flex: 1 1 0; min-width: 0; height: 15px; margin: 0 8px; }
+    .line svg { display: block; width: 100%; height: 15px; overflow: visible; }
+    .line path { stroke-width: 1; fill: none; stroke: var(--energy-line-color); }
+    .line .flow-dot { stroke-width: 6; stroke-linecap: round; animation: energy-flow var(--flow-duration) linear infinite; animation-direction: var(--flow-direction); }
+    /* SVG user units track the viewBox, independent of the rendered card width. */
+    @keyframes energy-flow { from { transform: translateX(0px); } to { transform: translateX(100px); } }
+    @container (max-width: 360px) {
+      .main { display: grid; grid-template-columns: 24px minmax(0, 1fr) 24px; gap: 4px; }
+      .label { max-width: none; margin: 0; }
+      .label:empty { display: none; }
+      .label-leading { grid-column: 1 / 3; grid-row: 1; }
+      .label-trailing { grid-column: 2 / 4; grid-row: 3; text-align: right; }
+      .icon-leading { grid-column: 1; grid-row: 2; }
+      .line { grid-column: 2; grid-row: 2; margin: 0; }
+      .icon-trailing { grid-column: 3; grid-row: 2; }
+    }
+    @media (prefers-reduced-motion: reduce) { .line .flow-dot { display: none; animation: none; } }
+  `;
 
   public static getStubConfig(): Record<string, unknown> {
-    return {
-      type: `custom:${CARD_NAME}`,
-      entities: [{}],
-    };
+    return { type: `custom:${CARD_NAME}`, entities: [{ power: '' }] };
   }
 
-  public static async getConfigElement() {
+  public static async getConfigElement(): Promise<HTMLElement> {
     await import('./energy-overview-card-editor');
-    return window.document.createElement(CARD_EDITOR_NAME);
+    return document.createElement(CARD_EDITOR_NAME);
   }
 
   public setConfig(config: EnergyOverviewConfig): void {
-    if (!config) {
-      throw new Error("Invalid configuration");
+    if (!config || !Array.isArray(config.entities) || config.entities.some((entity) => !entity || typeof entity !== 'object' || Array.isArray(entity))) {
+      throw new Error('Entities must be a list of entity configurations.');
     }
-    if (!config.entities) throw new Error('At least one entity is required.');
-
     this._config = config;
   }
 
-  protected render(): TemplateResult | symbol {
-    if (!this._config || !this.hass) {
-      return nothing;
+  public getCardSize(): number {
+    const rows = this._config?.entities.length ?? 0;
+    const named = this._config?.entities.filter((entity) => entity.name).length ?? 0;
+    return Math.max(1, Math.ceil((rows * 56 + named * 20 + (this._config?.title ? 56 : 0)) / 50));
+  }
+
+  public getGridOptions(): { columns: number; min_columns: number; rows: 'auto' } {
+    // Auto rows allow metadata and long labels to wrap without clipping.
+    return { columns: 12, min_columns: 6, rows: 'auto' };
+  }
+
+  protected render() {
+    if (!this._config || !this.hass) return nothing;
+    const entities: Array<EnergyOverviewEntityUI & { key: number }> = this._config.entities.map((entity, key) => ({
+      ...entity,
+      key,
+      power: readMeasurement(this.hass!, entity.power, 'W', true)!,
+      current: readMeasurement(this.hass!, entity.current, 'A'),
+      voltage: readMeasurement(this.hass!, entity.voltage, 'V'),
+      frequency: readMeasurement(this.hass!, entity.frequency, 'Hz'),
+      power_factor: readMeasurement(this.hass!, entity.power_factor, ''),
+      animation: { ...this._config?.animation, ...entity.animation },
+    }));
+    const field = this._config.order_by;
+    const sortable = ['power', 'current', 'voltage', 'frequency', 'power_factor'] as const;
+    const sortField = sortable.find((name) => name === field);
+    if (sortField) {
+      const sortValue = (entity: EnergyOverviewEntityUI) => sortField === 'power'
+        ? powerInWatts(entity.power) ?? 0
+        : entity[sortField]?.value ?? 0;
+      entities.sort((a, b) => sortValue(b) - sortValue(a));
     }
-
-    const entities: Array<EnergyOverviewEntityUI> = [];
-    this._config.entities.forEach((entity) => {
-      entities.push({
-        power: this._getState(entity.power, UnitOfPower.WATT, '0')!,
-        current: this._getState(entity.current, UnitOfElectricCurrent.AMPERE),
-        voltage: this._getState(entity.voltage, UnitOfElectricPotential.VOLT),
-        frequency: this._getState(entity.frequency, UnitOfFrequency.HERTZ),
-        power_factor: this._getState(entity.power_factor, ''),
-        name: entity.name ? entity.name : '',
-        color: entity.color ? entity.color : 'var(--energy-grid-consumption-color)',
-        label_trailing: entity.label_trailing ? entity.label_trailing : '',
-        label_leading: entity.label_leading ? entity.label_leading : '',
-        icon_trailing: entity.icon_trailing ? entity.icon_trailing : ICON_TRAILING_DEFAULT,
-        icon_leading: entity.icon_leading ? entity.icon_leading : ICON_LEADING_DEFAULT,
-        animation: { ...this._config?.animation, ...entity.animation }, // only overwrite set fields
-      });
-    });
-
-    if (this._config.order_by) {
-      const field = this._config.order_by;
-      entities.sort((e1, e2) => {
-        const a = e1[field] ? parseFloat(e1[field].value) : 0;
-        const b = e2[field] ? parseFloat(e2[field].value) : 0;
-        return b - a;
-      });
-    }
-
     return html`
       <ha-card .header=${this._config.title}>
-        ${entities.map((entity, i) => {
-      /* Power calculation */
-      const configPower = entity.power.value!;
-      let powerValue: number;
-      switch (entity.power.unit) {
-        case UnitOfPower.KILO_WATT:
-          powerValue = 1000 * configPower;
-          break;
-        case UnitOfPower.BTU_PER_HOUR:
-          powerValue = 0.29307107 * configPower;
-          break;
-        case UnitOfPower.WATT:
-        default:
-          powerValue = configPower;
-          break;
-      }
-
-      /* Power factor calculation */
-      let powerFactorDisplay: string | undefined;
-      if (entity.power_factor) {
-        const pf = entity.power_factor.value;
-        // power factor is realistically never at 1%, we can safely assume it's a percentage
-        if ((pf < -1 || pf > 1) || entity.power_factor.unit === PERCENTAGE) {
-          powerFactorDisplay = entity.power_factor.display;
-        } else {
-          // subtract 2 because of the multiplication by 100
-          let precision = (entity.power_factor.precision ?? 0) - 2;
-          // default to 0 precision in case of negative values
-          precision = precision >= 0 ? precision : 0;
-          powerFactorDisplay = formatNumber(
-            pf * 100,
-            this.hass!.locale,
-            { maximumFractionDigits: precision, minimumFractionDigits: precision },
-          );
-        }
-      }
-
-      /* Animation */
-      const { animation } = entity;
-      const animMin = animation?.min_duration ? animation.min_duration : 1;
-      const animMax = animation?.max_duration ? animation.max_duration : 10;
-      const animPower = animation?.power ? animation.power : 1000;
-      // a linear function which is max at x=0 and min at x=power is defined by:
-      // f(x) = (-(max-min)/power) * x + max
-      const x = powerValue;
-      const y = (-(animMax - animMin) / animPower) * Math.abs(x) + animMax;
-      let animationSpeed: number;
-      animationSpeed = clamp(y, animMin, animMax);
-      if (animationSpeed === animMax) animationSpeed = 0;
-
-      // Invert for animation.inverted XOR below 0
-      const inverted = animationSpeed > 0 // do not invert animation stop
-        ? (animation?.inverted ?? false) !== (x < 0)
-        : false;
-
-      return html`
-        <!--suppress CssUnresolvedCustomProperty -->
-        <div class="entity entity-${i}"
-              style="--energy-line-color: ${entity.color};">
-          ${entity.name ? html`<span class="primary name">${entity.name}</span>` : ''}
-          <div class="metadata">
-            ${entity.current || entity.voltage || entity.frequency ? html`
-            <div class="metadata-left">
-                  ${unsafeHTML((() => {
-        const elements: Array<String> = [];
-        if (entity.voltage) {
-          elements.push(`<span class="secondary voltage">${entity.voltage.display}</span>&nbsp;<span class="secondary voltage-unit">${entity.voltage.unit}</span>`);
-        }
-        if (entity.current) {
-          elements.push(`<span class="secondary current">${entity.current.display}</span>&nbsp;<span class="secondary current-unit">${entity.current.unit}</span>`);
-        }
-        if (entity.frequency) {
-          elements.push(`<span class="secondary frequency">${entity.frequency.display}</span>&nbsp;<span class="secondary frequency-unit">${entity.frequency.unit}</span>`);
-        }
-
-        return intersperse(
-          elements,
-          `<div class="divider"></div>`,
-        );
-      })().join(''))}
-            </div>`
-          : ``}
-            <div class="metadata-center">
-              <span class="secondary power">${entity.power.display}</span>&nbsp;<span
-              class="secondary power-unit">${entity.power.unit}</span>
-            </div>
-            ${powerFactorDisplay ? html`
-              <div class="metadata-right">
-                <span class="secondary power-factor">${powerFactorDisplay}</span>&nbsp;<span
-                class="secondary power-factor-unit">${PERCENTAGE}</span></div>` : ``}
-          </div>
-          <div class="main">
-            <div class="primary label label-leading">${entity.label_leading}</div>
-            <div class="icon icon-leading">
-              <ha-icon icon="${entity.icon_leading!}"></ha-icon>
-            </div>
-            <div class="line">
-              <svg overflow="visible" preserveAspectRatio="xMaxYMid slice"
-                    viewBox="0 0 100 10" xmlns="http://www.w3.org/2000/svg">
-                <path class="grid" d="M0,5 H100" id="grid"
-                      vector-effect="non-scaling-stroke"></path>
-                <circle class="grid" r="1"
-                        vector-effect="non-scaling-stroke">
-                  <animateMotion
-                    calcMode="linear"
-                    dur="${animationSpeed}s"
-                    keyPoints="${inverted ? `1;0` : `0;1`}"
-                    keyTimes="0;1"
-                    repeatCount="indefinite">
-                    <mpath xlink:href="#grid"></mpath>
-                  </animateMotion>
-                </circle>
-              </svg>
-            </div>
-            <div class="icon icon-trailing">
-              <ha-icon icon="${entity.icon_trailing!}"></ha-icon>
-            </div>
-            <div class="primary label label-trailing">${entity.label_trailing}</div>
-          </div>
-        </div>`;
-    })}
+        ${!entities.length ? html`<div class="entity">No entities configured.</div>` : nothing}
+        ${repeat(entities, (entity) => entity.key, (entity) => this._renderEntity(entity))}
       </ha-card>
     `;
   }
 
-  private _getState(
-    entity: string | undefined,
-    fallbackUnit: string,
-    fallbackValue?: string,
-  ) {
-    const stateObj = entity ? this.hass!.states[entity] : undefined;
-    if (!stateObj && !fallbackValue) return undefined;
-    return <EnergyOverviewEntityState>{
-      value: parseFloat(stateObj ? stateObj.state : fallbackValue!),
-      unit: this._extractUnit(entity, fallbackUnit),
-      display: this._formatNumber(entity, fallbackValue),
-      precision: entity ? (this.hass as any).entities[entity]?.display_precision : undefined,
-    };
+  private _renderEntity(entity: EnergyOverviewEntityUI & { key: number }) {
+    const animation = animationFor(entity.power, entity.animation);
+    const pf = entity.power_factor;
+    const pfUnit = pf?.value === undefined ? '' : '%';
+    const className = `entity entity-${entity.key}`;
+    const colorStyle = `--energy-line-color: ${entity.color || 'var(--energy-grid-consumption-color, var(--primary-color, #03a9f4))'};`;
+    return html`
+      <div class=${className} style=${colorStyle}>
+        ${entity.name ? html`<span class="primary name">${entity.name}</span>` : nothing}
+        <div class="metadata">
+          ${entity.current || entity.voltage || entity.frequency ? html`
+            <div class="metadata-left">
+              ${this._measurement(entity.voltage, 'voltage')}
+              ${this._measurement(entity.current, 'current')}
+              ${this._measurement(entity.frequency, 'frequency')}
+            </div>` : nothing}
+          <div class="metadata-center">
+            <span class="secondary power">${entity.power.display}</span>&nbsp;<span class="secondary power-unit">${entity.power.unit}</span>
+          </div>
+          ${pf ? html`<div class="metadata-right">
+            <span class="secondary power-factor">${powerFactorDisplay(pf, this.hass!)}</span>&nbsp;<span class="secondary power-factor-unit">${pfUnit}</span>
+          </div>` : nothing}
+        </div>
+        <div class="main">
+          <div class="primary label label-leading">${entity.label_leading || ''}</div>
+          <div class="icon icon-leading"><ha-icon .icon=${entity.icon_leading || ICON_LEADING_DEFAULT}></ha-icon></div>
+          <div class="line">
+            <svg preserveAspectRatio="none" viewBox="0 0 100 10" aria-hidden="true">
+              <path class="grid" d="M0,5 H100" vector-effect="non-scaling-stroke"></path>
+              ${this._motion(animation)}
+            </svg>
+          </div>
+          <div class="icon icon-trailing"><ha-icon .icon=${entity.icon_trailing || ICON_TRAILING_DEFAULT}></ha-icon></div>
+          <div class="primary label label-trailing">${entity.label_trailing || ''}</div>
+        </div>
+      </div>
+    `;
   }
 
-  private _extractUnit(entity: string | undefined, fallback: string) {
-    return entity ? this.hass!.states[entity].attributes.unit_of_measurement ?? fallback : fallback;
+  /**
+   * Returns the flow dot with a cycle duration in seconds and the supplied direction.
+   * An undefined duration returns Lit's `nothing`; an inverted direction reverses the dot.
+   * The card hides the dot when reduced motion is preferred.
+   */
+  private _motion(animation: ReturnType<typeof animationFor>) {
+    if (animation.duration === undefined) return nothing;
+    const duration = `${animation.duration}s`;
+    const direction = animation.inverted ? 'reverse' : 'normal';
+    const motionStyle = `--flow-duration: ${duration}; --flow-direction: ${direction};`;
+    // A round-capped zero-length stroke stays circular in screen space even when
+    // preserveAspectRatio="none" stretches the SVG's user coordinates.
+    return svg`<path class="flow-dot" d="M0,5 h0" vector-effect="non-scaling-stroke"
+      style=${motionStyle}></path>`;
   }
 
-  private _formatNumber(entity: string | undefined, fallback?: string) {
-    const stateObj = entity ? this.hass!.states[entity] : undefined;
-    return stateObj
-      ? formatNumber(
-        stateObj.state,
-        this.hass!.locale,
-        getNumberFormatOptions(
-          stateObj,
-          (this.hass as any).entities[entity!],
-        ),
-      )
-      : fallback;
+  private _measurement(value: EnergyOverviewEntityState | undefined, name: string) {
+    if (!value) return nothing;
+    const valueClass = `secondary ${name}`;
+    const unitClass = `secondary ${name}-unit`;
+    return html`<div class="measurement"><span class=${valueClass}>${value.display}</span>&nbsp;<span class=${unitClass}>${value.unit}</span></div>`;
   }
 }
 
-// eslint-disable-next-line no-console
-console.info(
-  `%c${CARD_NAME} (${version}) is installed`,
-  "color: #33b4ff; font-weight: bold",
-  "",
-);
+window.customCards ??= [];
+if (!window.customCards.some((card) => card.type === CARD_NAME)) window.customCards.push({
+  type: CARD_NAME, name: NAME, preview: true, documentationURL: repository,
+  description: 'Live power and electrical measurements with animated flow.',
+});
+console.info(`${CARD_NAME} (${version}) is installed`);
