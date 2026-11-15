@@ -23,6 +23,10 @@ Flow animation stops when power is zero, missing, or unavailable. Negative power
 reverses the direction; `inverted` reverses it again. The moving dot is hidden
 when your device's **Reduce Motion** accessibility setting is enabled.
 
+Power updates preserve the moving dot's position when speed or direction changes,
+including when sorting moves a row. Zero or unavailable power removes the dot;
+when power returns, its animation starts a new cycle.
+
 Animation speed uses the absolute power value, converted to watts. Supported
 power units are `mW`, `W`, `kW`, `MW`, and `BTU/h`.
 
