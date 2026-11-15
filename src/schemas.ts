@@ -42,14 +42,7 @@ export const ENTITY_DATA_SCHEMA = [
   },
 ];
 
-const MEASUREMENT_UNITS = {
-  power: ['mW', 'W', 'kW', 'MW', 'BTU/h'],
-  voltage: ['mV', 'V', 'kV', 'MV'],
-  current: ['mA', 'A', 'kA'],
-  frequency: ['Hz', 'kHz', 'MHz', 'GHz'],
-  power_factor: ['%', 'cosϕ', 'cosφ'],
-} as const;
-type MeasurementField = keyof typeof MEASUREMENT_UNITS;
+type MeasurementField = 'power' | 'voltage' | 'current' | 'frequency' | 'power_factor';
 
 /** Filter suggestions only; existing YAML values remain valid and selectable. */
 export function entityDataSchema(hass: HomeAssistant, config: EnergyOverviewEntity, showAll = false) {
@@ -57,10 +50,7 @@ export function entityDataSchema(hass: HomeAssistant, config: EnergyOverviewEnti
   const fieldSchema = (name: MeasurementField) => {
     const ids = Object.entries(hass.states).filter(([id, entity]) => {
       if (!entity || !INPUT_ENTITY_DOMAINS.includes(id.split('.')[0])) return false;
-      const deviceClass = entity.attributes.device_class;
-      return typeof deviceClass === 'string' && deviceClass.length > 0
-        ? deviceClass === name
-        : (MEASUREMENT_UNITS[name] as readonly string[]).includes(entity.attributes.unit_of_measurement ?? '');
+      return entity.attributes.device_class === name;
     }).map(([id]) => id);
     const selected = config[name];
     if (selected && !ids.includes(selected)) ids.push(selected);
