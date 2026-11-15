@@ -83,10 +83,12 @@ Direct configuration via YAML is also available. For details see below.
 
 Configure **Color thresholds** in the row editor or use YAML:
 
-Each threshold has a color picker and a synchronized CSS text field. Use the
-picker for opaque colors, or the text field for CSS variables and custom colors.
-For values the picker cannot represent (such as a CSS variable or transparency),
-its swatch is a placeholder; the saved value is preserved until you choose a color.
+The default color and every threshold use Home Assistant's `ui_color` selector,
+the same control as the Distribution card. Choose a palette color or enter a
+custom value. Values remain strings in YAML: palette names follow HA's theme;
+existing hex, RGB/RGBA and CSS-variable values remain supported without conversion.
+Clear the default color to use the card's theme fallback. Clearing a threshold's
+color makes that threshold inactive until another color is selected.
 
 ```yaml
 entities:
@@ -106,6 +108,10 @@ thresholds, or for unavailable readings, the static `color`/theme fallback is us
 Invalid bounds or CSS colors are ignored. CSS variables such as
 `var(--primary-color)` are supported. Animation speed already adapts to power and
 is configured independently.
+
+Palette colors such as `amber`, `deep-orange`, and `primary` resolve through
+their corresponding HA theme variables. Literal CSS colors are used as a fallback
+when a theme variable is missing; other palette names fall back to the card theme.
 
 #### AnimationConfig
 

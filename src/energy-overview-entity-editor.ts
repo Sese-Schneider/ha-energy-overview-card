@@ -6,15 +6,15 @@ import { capitalize, fireEvent } from "./helper/util";
 import type { HomeAssistant } from "./ha-types";
 import { ENTITY_EDITOR_NAME } from "./const";
 import { EnergyOverviewEntity } from "./types";
-import { ANIMATION_SCHEMA, ENTITY_DATA_SCHEMA, ENTITY_VISUALS_SCHEMA } from "./schemas";
-import { colorPickerValue, DEFAULT_LINE_COLOR } from './helper/color';
+import { ANIMATION_SCHEMA, ENTITY_DATA_SCHEMA, ENTITY_VISUALS_SCHEMA, THRESHOLD_COLOR_SCHEMA } from "./schemas";
+import { DEFAULT_LINE_COLOR } from './helper/color';
 
 @customElement(ENTITY_EDITOR_NAME)
 export class EnergyOverviewEntityEditor extends LitElement {
   static readonly styles = css`
     .threshold { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-bottom: 8px; }
     .threshold label { flex: 1 1 120px; min-width: 0; }
-    .threshold .color-picker { flex: 0 0 56px; }
+    .threshold .color-control { display: block; flex: 1 1 160px; min-width: 0; }
     .threshold input { display: block; width: 100%; box-sizing: border-box; min-height: 44px; font: inherit; }
     button { min-height: 44px; font: inherit; cursor: pointer; }
     .threshold input, button { color: var(--primary-text-color); background: var(--card-background-color); border: 1px solid var(--divider-color, #888); border-radius: 4px; }
@@ -40,7 +40,9 @@ export class EnergyOverviewEntityEditor extends LitElement {
   _valueChanged(ev) {
     ev.stopPropagation();
     if (!this.config) return;
-    this._publish({ ...this.config, ...ev.detail.value });
+    const config = { ...this.config, ...ev.detail.value };
+    if (config.color === undefined || config.color === '') delete config.color;
+    this._publish(config);
   }
 
   _animationChanged(ev) {
@@ -58,6 +60,12 @@ export class EnergyOverviewEntityEditor extends LitElement {
     const thresholds = [...this._thresholds()];
     thresholds[index] = { ...thresholds[index], [field]: value };
     this._publish({ ...this.config, color_thresholds: thresholds });
+  }
+
+  private _thresholdColorChanged(index: number, ev: CustomEvent<{ value: { color?: string } }>): void {
+    ev.stopPropagation();
+    // Clearing a threshold's color leaves that threshold inactive.
+    this._changeThreshold(index, 'color', ev.detail.value.color ?? '');
   }
 
   private _addThreshold(): void {
@@ -100,29 +108,20 @@ export class EnergyOverviewEntityEditor extends LitElement {
       </ha-form>
       <h3>Color thresholds</h3>
       <p>Minimum absolute power in watts. The highest matching threshold wins.</p>
-      <p>Choose a color with the picker, or enter a CSS color or variable. Custom CSS values stay unchanged until you choose a color.</p>
-      ${this._thresholds().map((threshold, index) => {
-        const pickerColor = colorPickerValue(threshold?.color);
-        return html`
+      <p>Choose a theme color or enter a custom CSS color using the Home Assistant color selector.</p>
+      ${this._thresholds().map((threshold, index) => html`
         <div class="threshold">
           <label>Minimum power (W)
             <input type="number" min="0" step="any" aria-label=${`Threshold ${index + 1} minimum power (W)`}
               .value=${String(threshold?.value ?? '')}
               @change=${(event: Event) => this._changeThreshold(index, 'value', (event.target as HTMLInputElement).valueAsNumber)}>
           </label>
-          <label class="color-picker">Color
-            <input type="color" aria-label=${`Threshold ${index + 1} color picker`}
-              title=${pickerColor ? 'Choose a color' : 'Choose an opaque color; the swatch is a placeholder for the current custom CSS value'}
-              .value=${pickerColor ?? '#03a9f4'}
-              @input=${(event: Event) => this._changeThreshold(index, 'color', (event.target as HTMLInputElement).value)}>
-          </label>
-          <label>CSS color
-            <input type="text" aria-label=${`Threshold ${index + 1} color`} .value=${threshold?.color ?? ''}
-              @change=${(event: Event) => this._changeThreshold(index, 'color', (event.target as HTMLInputElement).value)}>
-          </label>
+          <ha-form class="color-control" aria-label=${`Threshold ${index + 1} color`}
+            .hass=${this.hass} .data=${{ color: threshold?.color }} .schema=${THRESHOLD_COLOR_SCHEMA}
+            .computeLabel=${this._computeLabel}
+            @value-changed=${(event: CustomEvent<{ value: { color?: string } }>) => this._thresholdColorChanged(index, event)}></ha-form>
           <button type="button" aria-label=${`Remove threshold ${index + 1}`} @click=${() => this._removeThreshold(index)}>Remove</button>
-        </div>`;
-      })}
+        </div>`)}
       <button type="button" id="add-threshold" @click=${this._addThreshold}>Add color threshold</button>
     `;
   }
