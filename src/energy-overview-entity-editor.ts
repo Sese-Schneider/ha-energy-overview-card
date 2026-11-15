@@ -7,13 +7,14 @@ import type { HomeAssistant } from "./ha-types";
 import { ENTITY_EDITOR_NAME } from "./const";
 import { EnergyOverviewEntity } from "./types";
 import { ANIMATION_SCHEMA, ENTITY_DATA_SCHEMA, ENTITY_VISUALS_SCHEMA } from "./schemas";
-import { DEFAULT_LINE_COLOR } from './helper/color';
+import { colorPickerValue, DEFAULT_LINE_COLOR } from './helper/color';
 
 @customElement(ENTITY_EDITOR_NAME)
 export class EnergyOverviewEntityEditor extends LitElement {
   static readonly styles = css`
     .threshold { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-bottom: 8px; }
     .threshold label { flex: 1 1 120px; min-width: 0; }
+    .threshold .color-picker { flex: 0 0 56px; }
     .threshold input { display: block; width: 100%; box-sizing: border-box; min-height: 44px; font: inherit; }
     button { min-height: 44px; font: inherit; cursor: pointer; }
     .threshold input, button { color: var(--primary-text-color); background: var(--card-background-color); border: 1px solid var(--divider-color, #888); border-radius: 4px; }
@@ -99,19 +100,29 @@ export class EnergyOverviewEntityEditor extends LitElement {
       </ha-form>
       <h3>Color thresholds</h3>
       <p>Minimum absolute power in watts. The highest matching threshold wins.</p>
-      ${this._thresholds().map((threshold, index) => html`
+      <p>Choose a color with the picker, or enter a CSS color or variable. Custom CSS values stay unchanged until you choose a color.</p>
+      ${this._thresholds().map((threshold, index) => {
+        const pickerColor = colorPickerValue(threshold?.color);
+        return html`
         <div class="threshold">
           <label>Minimum power (W)
             <input type="number" min="0" step="any" aria-label=${`Threshold ${index + 1} minimum power (W)`}
               .value=${String(threshold?.value ?? '')}
               @change=${(event: Event) => this._changeThreshold(index, 'value', (event.target as HTMLInputElement).valueAsNumber)}>
           </label>
+          <label class="color-picker">Color
+            <input type="color" aria-label=${`Threshold ${index + 1} color picker`}
+              title=${pickerColor ? 'Choose a color' : 'Choose an opaque color; the swatch is a placeholder for the current custom CSS value'}
+              .value=${pickerColor ?? '#03a9f4'}
+              @input=${(event: Event) => this._changeThreshold(index, 'color', (event.target as HTMLInputElement).value)}>
+          </label>
           <label>CSS color
             <input type="text" aria-label=${`Threshold ${index + 1} color`} .value=${threshold?.color ?? ''}
               @change=${(event: Event) => this._changeThreshold(index, 'color', (event.target as HTMLInputElement).value)}>
           </label>
           <button type="button" aria-label=${`Remove threshold ${index + 1}`} @click=${() => this._removeThreshold(index)}>Remove</button>
-        </div>`)}
+        </div>`;
+      })}
       <button type="button" id="add-threshold" @click=${this._addThreshold}>Add color threshold</button>
     `;
   }

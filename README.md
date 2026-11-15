@@ -83,6 +83,11 @@ Direct configuration via YAML is also available. For details see below.
 
 Configure **Color thresholds** in the row editor or use YAML:
 
+Each threshold has a color picker and a synchronized CSS text field. Use the
+picker for opaque colors, or the text field for CSS variables and custom colors.
+For values the picker cannot represent (such as a CSS variable or transparency),
+its swatch is a placeholder; the saved value is preserved until you choose a color.
+
 ```yaml
 entities:
   - power: sensor.home_power
