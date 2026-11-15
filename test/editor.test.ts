@@ -3,7 +3,7 @@ import { EnergyOverviewCardEditor } from '../src/energy-overview-card-editor';
 import type { EnergyOverviewConfig } from '../src/types';
 import { EnergyOverviewEntityEditor } from '../src/energy-overview-entity-editor';
 import { userEvent } from 'vitest/browser';
-import { ANIMATION_SCHEMA, ENTITY_DATA_SCHEMA, ENTITY_VISUALS_SCHEMA, TITLE_SCHEMA, ORDER_BY_SCHEMA } from '../src/schemas';
+import { ANIMATION_SCHEMA, ENTITY_DATA_SCHEMA, ENTITY_VISUALS_SCHEMA, TITLE_SCHEMA, ORDER_BY_SCHEMA, TAP_ACTION_SCHEMA } from '../src/schemas';
 type Form = HTMLElement & { schema: unknown };
 
 
@@ -58,7 +58,7 @@ it('retains global and per-entity settings during edits, then reopens saved conf
   const child = element.shadowRoot!.querySelector<EnergyOverviewEntityEditor>('energy-overview-entity-editor')!;
   await child.updateComplete;
   const childForms = child.shadowRoot!.querySelectorAll<Form>('ha-form');
-  expect([...childForms].map((form) => form.schema)).toEqual([ENTITY_DATA_SCHEMA, ENTITY_VISUALS_SCHEMA, ANIMATION_SCHEMA]);
+  expect([...childForms].map((form) => form.schema)).toEqual([ENTITY_DATA_SCHEMA, ENTITY_VISUALS_SCHEMA, ANIMATION_SCHEMA, TAP_ACTION_SCHEMA]);
   change(child.shadowRoot!.querySelector('ha-form')!, { power: 'sensor.changed' });
   change(child.shadowRoot!.querySelectorAll('ha-form')[2] as HTMLElement, { inverted: false, power: 300 });
   await element.updateComplete;
