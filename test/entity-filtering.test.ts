@@ -13,7 +13,7 @@ const hass: HomeAssistant = {
     'sensor.frequency': { state: '50', attributes: { device_class: 'frequency' } },
     'input_number.frequency': { state: '50', attributes: { unit_of_measurement: 'Hz' } },
     'sensor.pf': { state: '0.9', attributes: { device_class: 'power_factor' } },
-    'sensor.temperature': { state: '25', attributes: { device_class: 'temperature', unit_of_measurement: 'W' } },
+    'sensor.temperature': { state: '25', attributes: { device_class: 'temperature', unit_of_measurement: '°C' } },
     'sensor.humidity': { state: '50', attributes: { device_class: 'humidity', unit_of_measurement: '%' } },
     'sensor.unknown': { state: '1', attributes: {} },
     'light.power': { state: 'on', attributes: { device_class: 'power' } },
