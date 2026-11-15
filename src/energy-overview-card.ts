@@ -5,6 +5,7 @@ import type { HomeAssistant } from './ha-types';
 import { version, repository } from '../package.json';
 import type { EnergyOverviewConfig, EnergyOverviewEntityState, EnergyOverviewEntityUI } from './types';
 import { animationFor, powerFactorDisplay, powerInWatts, readMeasurement } from './helper/measurement';
+import { lineColor } from './helper/color';
 import { CARD_EDITOR_NAME, CARD_NAME, NAME, ICON_LEADING_DEFAULT, ICON_TRAILING_DEFAULT } from './const';
 
 @customElement(CARD_NAME)
@@ -107,7 +108,7 @@ export class EnergyOverviewCard extends LitElement {
     const pf = entity.power_factor;
     const pfUnit = pf?.value === undefined ? '' : '%';
     const className = `entity entity-${entity.key}`;
-    const colorStyle = `--energy-line-color: ${entity.color || 'var(--energy-grid-consumption-color, var(--primary-color, #03a9f4))'};`;
+    const colorStyle = `--energy-line-color: ${lineColor(entity.power, entity)};`;
     return html`
       <div class=${className} style=${colorStyle}>
         ${entity.name ? html`<span class="primary name">${entity.name}</span>` : nothing}

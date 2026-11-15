@@ -65,20 +65,42 @@ Direct configuration via YAML is also available. For details see below.
 
 #### PowerEntity
 
-| Name           | Type            | Requirement  | Description                        | Default                                |
-| -------------- | --------------- | ------------ | ---------------------------------- | -------------------------------------- |
-| power          | state entity    | **Required** | State entity for power             |                                        |
-| voltage        | state entity    | _Optional_   | State entity for voltage           |                                        |
-| current        | state entity    | _Optional_   | State entity for current           |                                        |
-| frequency      | state entity    | _Optional_   | State entity for frequency         |                                        |
-| power_factor   | state entity    | _Optional_   | State entity for power_factor      |                                        |
-| name           | string          | _Optional_   | Name label                         |                                        |
-| icon_leading   | string          | _Optional_   | Leading MD icon                    | `mdi:transmission-tower`               |
-| icon_trailing  | string          | _Optional_   | Trailing MD icon                   | `mdi:home-lightning-bolt`              |
-| label_leading  | string          | _Optional_   | Leading label                      |                                        |
-| label_trailing | string          | _Optional_   | Trailing label                     |                                        |
-| color          | string          | _Optional_   | CSS color                          | `var(--energy-grid-consumption-color)` |
-| animation      | AnimationConfig | _Optional_   | Overwrite for the global animation |                                        |
+| Name             | Type                                  | Requirement  | Description                                        | Default                                |
+| ---------------- | ------------------------------------- | ------------ | -------------------------------------------------- | -------------------------------------- |
+| power            | state entity                          | **Required** | State entity for power                             |                                        |
+| voltage          | state entity                          | _Optional_   | State entity for voltage                           |                                        |
+| current          | state entity                          | _Optional_   | State entity for current                           |                                        |
+| frequency        | state entity                          | _Optional_   | State entity for frequency                         |                                        |
+| power_factor     | state entity                          | _Optional_   | State entity for power_factor                      |                                        |
+| name             | string                                | _Optional_   | Name label                                         |                                        |
+| icon_leading     | string                                | _Optional_   | Leading MD icon                                    | `mdi:transmission-tower`               |
+| icon_trailing    | string                                | _Optional_   | Trailing MD icon                                   | `mdi:home-lightning-bolt`              |
+| label_leading    | string                                | _Optional_   | Leading label                                      |                                        |
+| label_trailing   | string                                | _Optional_   | Trailing label                                     |                                        |
+| color            | string                                | _Optional_   | CSS color                                          | `var(--energy-grid-consumption-color)` |
+| color_thresholds | Array<{value: number, color: string}> | _Optional_   | Dynamic line/dot colors by absolute power in watts | None                                   |
+| animation        | AnimationConfig                       | _Optional_   | Overwrite for the global animation                 |                                        |
+
+Configure **Color thresholds** in the row editor or use YAML:
+
+```yaml
+entities:
+  - power: sensor.home_power
+    color: "#488fc2"
+    color_thresholds:
+      - value: 100
+        color: orange
+      - value: 1000
+        color: red
+```
+
+Each `value` is an inclusive lower bound in absolute watts, after unit conversion.
+The greatest matching threshold wins regardless of list order; for equal bounds,
+the last entry wins. Export power uses the same magnitude-based colors. Below all
+thresholds, or for unavailable readings, the static `color`/theme fallback is used.
+Invalid bounds or CSS colors are ignored. CSS variables such as
+`var(--primary-color)` are supported. Animation speed already adapts to power and
+is configured independently.
 
 #### AnimationConfig
 
