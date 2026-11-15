@@ -18,6 +18,8 @@ export default defineConfig(({ mode }) => ({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],
+      // Measure owned code, not unused exports from the checksum-locked dependency.
+      exclude: ['src/vendor/**'],
       reporter: ['text', 'lcov', 'html'],
       thresholds: { statements: 80, branches: 75, functions: 80, lines: 85 },
     },

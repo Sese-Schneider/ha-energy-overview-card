@@ -1,24 +1,18 @@
 import type { EnergyOverviewEntity, EnergyOverviewEntityState } from '../types';
 import { powerInWatts } from './measurement';
+import { computeCssColor, computeCssVariableName } from '../vendor/home-assistant/compute-color';
 
 export const DEFAULT_LINE_COLOR = 'var(--energy-grid-consumption-color, var(--primary-color, #03a9f4))';
-
-// HA's ui_color palette and its additional YAML-only theme color aliases.
-const THEME_COLORS = new Set([
-  'primary', 'accent', 'red', 'pink', 'purple', 'deep-purple', 'indigo', 'blue',
-  'light-blue', 'cyan', 'teal', 'green', 'light-green', 'lime', 'yellow', 'amber',
-  'orange', 'deep-orange', 'brown', 'light-grey', 'grey', 'dark-grey', 'blue-grey',
-  'black', 'white', 'primary-text', 'secondary-text', 'disabled',
-]);
 
 /** Resolve palette names at render time; keep saved strings unchanged. */
 export function uiColorValue(color: string | undefined): string | undefined {
   if (typeof color !== 'string' || !color.trim()) return undefined;
   const name = color.trim();
-  if (THEME_COLORS.has(name)) {
+  const computed = computeCssColor(name);
+  if (computed !== name) {
     // Literal CSS colors remain usable if a theme variable is absent.
     const fallback = CSS.supports('color', name) ? name : DEFAULT_LINE_COLOR;
-    return `var(--${name}-color, ${fallback})`;
+    return `var(${computeCssVariableName(name)}, ${fallback})`;
   }
   return CSS.supports('color', color) ? color : undefined;
 }

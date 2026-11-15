@@ -216,6 +216,22 @@ perform a hard refresh or clear the browser cache.
 
 ## Publishing releases
 
+### Home Assistant color helper dependency
+
+Color-name resolution uses a pinned, unmodified copy of Home Assistant's
+`compute-color.ts`, not a hand-maintained palette. This is a build-time dependency:
+normal builds verify the checked-in source and licensing checksums offline, and
+esbuild includes the needed helpers in the standalone card. The release bundle
+retains the complete upstream Apache-2.0 license and attribution alongside the
+card's MIT notice. The installed HA version does not update this pinned snapshot.
+
+See [dependency provenance and updating](src/vendor/home-assistant/README.md).
+Use `npm run vendor:ha-colors` to verify the copy, or pass
+`-- --update <full-commit-sha>` to refresh it explicitly before reviewing the diff
+and rerunning tests. Never point normal builds at a mutable branch.
+
+### Release workflow
+
 Maintainers can run the **Release** workflow from GitHub Actions on `main` or
 `dev`. Enter a new version without the `v` prefix: `X.Y.Z` on `main` (for example,
 `3.0.0`) or `X.Y.Z-dev.N` on `dev` (for example, `3.1.0-dev.1`). Existing tags
