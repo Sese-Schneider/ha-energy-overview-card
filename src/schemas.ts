@@ -1,4 +1,6 @@
 import { ICON_LEADING_DEFAULT, ICON_TRAILING_DEFAULT, UnitOfPower } from "./const";
+import type { HomeAssistant } from './ha-types';
+import type { EnergyOverviewEntity } from './types';
 
 const INPUT_ENTITY_DOMAINS = ["sensor", "input_number"];
 export const ANIMATION_SCHEMA = [
@@ -27,18 +29,47 @@ export const ANIMATION_SCHEMA = [
 ];
 
 export const ENTITY_DATA_SCHEMA = [
-  { name: "power", required: true, selector: { entity: { domain: INPUT_ENTITY_DOMAINS } } },
+  { name: "power", required: true, selector: { entity: { filter: { domain: INPUT_ENTITY_DOMAINS } } } },
   {
     type: "grid",
     name: "",
     schema: [
-      { name: "voltage", selector: { entity: { domain: INPUT_ENTITY_DOMAINS } } },
-      { name: "current", selector: { entity: { domain: INPUT_ENTITY_DOMAINS } } },
-      { name: "frequency", selector: { entity: { domain: INPUT_ENTITY_DOMAINS } } },
-      { name: "power_factor", selector: { entity: { domain: INPUT_ENTITY_DOMAINS } } },
+      { name: "voltage", selector: { entity: { filter: { domain: INPUT_ENTITY_DOMAINS } } } },
+      { name: "current", selector: { entity: { filter: { domain: INPUT_ENTITY_DOMAINS } } } },
+      { name: "frequency", selector: { entity: { filter: { domain: INPUT_ENTITY_DOMAINS } } } },
+      { name: "power_factor", selector: { entity: { filter: { domain: INPUT_ENTITY_DOMAINS } } } },
     ],
   },
 ];
+
+const MEASUREMENT_UNITS = {
+  power: ['mW', 'W', 'kW', 'MW', 'BTU/h'],
+  voltage: ['mV', 'V', 'kV', 'MV'],
+  current: ['mA', 'A', 'kA'],
+  frequency: ['Hz', 'kHz', 'MHz', 'GHz'],
+  power_factor: ['%', 'cosϕ', 'cosφ'],
+} as const;
+type MeasurementField = keyof typeof MEASUREMENT_UNITS;
+
+/** Filter suggestions only; existing YAML values remain valid and selectable. */
+export function entityDataSchema(hass: HomeAssistant, config: EnergyOverviewEntity, showAll = false) {
+  if (showAll) return ENTITY_DATA_SCHEMA;
+  const fieldSchema = (name: MeasurementField) => {
+    const ids = Object.entries(hass.states).filter(([id, entity]) => {
+      if (!entity || !INPUT_ENTITY_DOMAINS.includes(id.split('.')[0])) return false;
+      const deviceClass = entity.attributes.device_class;
+      return typeof deviceClass === 'string' && deviceClass.length > 0
+        ? deviceClass === name
+        : (MEASUREMENT_UNITS[name] as readonly string[]).includes(entity.attributes.unit_of_measurement ?? '');
+    }).map(([id]) => id);
+    const selected = config[name];
+    if (selected && !ids.includes(selected)) ids.push(selected);
+    return { name, ...(name === 'power' ? { required: true } : {}), selector: { entity: { include_entities: ids } } };
+  };
+  return [fieldSchema('power'), {
+    type: 'grid', name: '', schema: ['voltage', 'current', 'frequency', 'power_factor'].map((name) => fieldSchema(name as MeasurementField)),
+  }];
+}
 
 export const ENTITY_VISUALS_SCHEMA = [
   { name: "name", selector: { text: {} } },
