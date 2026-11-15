@@ -42,6 +42,8 @@ export const ENTITY_DATA_SCHEMA = [
 
 export const ENTITY_VISUALS_SCHEMA = [
   { name: "name", selector: { text: {} } },
+  { name: 'hide_below', label: 'Hide below power (W)', selector: { number: { mode: 'box', min: 0, unit_of_measurement: 'W' } } },
+  { name: 'hide_below_signed', label: 'Use signed power for visibility (otherwise absolute)', selector: { boolean: {} } },
   {
     type: "grid",
     name: "",

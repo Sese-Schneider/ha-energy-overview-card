@@ -17,6 +17,8 @@ export interface EnergyOverviewEntity {
   icon_trailing?: string;
   icon_leading?: string;
   color?: string;
+  hide_below?: number;
+  hide_below_signed?: boolean;
   animation?: EnergyOverviewAnimation;
 }
 

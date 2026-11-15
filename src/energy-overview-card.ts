@@ -5,6 +5,7 @@ import type { HomeAssistant } from './ha-types';
 import { version, repository } from '../package.json';
 import type { EnergyOverviewConfig, EnergyOverviewEntityState, EnergyOverviewEntityUI } from './types';
 import { animationFor, powerFactorDisplay, powerInWatts, readMeasurement } from './helper/measurement';
+import { rowVisible } from './helper/visibility';
 import { CARD_EDITOR_NAME, CARD_NAME, NAME, ICON_LEADING_DEFAULT, ICON_TRAILING_DEFAULT } from './const';
 
 @customElement(CARD_NAME)
@@ -84,7 +85,7 @@ export class EnergyOverviewCard extends LitElement {
       frequency: readMeasurement(this.hass!, entity.frequency, 'Hz'),
       power_factor: readMeasurement(this.hass!, entity.power_factor, ''),
       animation: { ...this._config?.animation, ...entity.animation },
-    }));
+    })).filter((entity) => rowVisible(entity.power, entity));
     const field = this._config.order_by;
     const sortable = ['power', 'current', 'voltage', 'frequency', 'power_factor'] as const;
     const sortField = sortable.find((name) => name === field);
@@ -96,7 +97,7 @@ export class EnergyOverviewCard extends LitElement {
     }
     return html`
       <ha-card .header=${this._config.title}>
-        ${!entities.length ? html`<div class="entity">No entities configured.</div>` : nothing}
+        ${!entities.length ? html`<div class="entity">${this._config.entities.length ? 'No entities above the visibility threshold.' : 'No entities configured.'}</div>` : nothing}
         ${repeat(entities, (entity) => entity.key, (entity) => this._renderEntity(entity))}
       </ha-card>
     `;
