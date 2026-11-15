@@ -48,6 +48,12 @@ A graphical editor supports adding, selecting, reordering, and deleting entities
 including starting with an empty card. If frontend forms fail to load, use
 **Retry** or edit the card in YAML.
 
+Measurement pickers suggest entities with the matching device class (`power`,
+`voltage`, `current`, `frequency`, or `power_factor`), not their unit of measurement.
+Existing selections remain available, including missing or unclassified sensors.
+Use **Show all sensors and numeric helpers** for integrations or helpers without
+a device class. This changes only editor suggestions; existing YAML is not restricted.
+
 After installation, simply press "Add Card", search for "Energy Overview", and add the card.
 Now you can start the configuration via the GUI.
 
