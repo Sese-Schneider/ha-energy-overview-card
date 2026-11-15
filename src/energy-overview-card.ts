@@ -11,6 +11,39 @@ import { CARD_EDITOR_NAME, CARD_NAME, NAME, ICON_LEADING_DEFAULT, ICON_TRAILING_
 export class EnergyOverviewCard extends LitElement {
   @property({ attribute: false }) public hass?: HomeAssistant;
   @state() private _config?: EnergyOverviewConfig;
+  private _motionSnapshots: Array<{ node: Element; animation: Animation; progress: number; duration: number; direction: PlaybackDirection; paused: boolean }> = [];
+
+  protected willUpdate(): void {
+    this._motionSnapshots = [];
+    for (const node of this.renderRoot.querySelectorAll('.flow-dot')) {
+      const animation = node.getAnimations()[0];
+      const effect = animation?.effect;
+      if (!effect) continue;
+      const timing = effect.getTiming();
+      const progress = effect.getComputedTiming().progress;
+      if (typeof timing.duration === 'number' && typeof progress === 'number') {
+        this._motionSnapshots.push({ node, animation, progress, duration: timing.duration, direction: timing.direction ?? 'normal', paused: animation.playState === 'paused' });
+      }
+    }
+  }
+
+  protected updated(): void {
+    for (const previous of this._motionSnapshots) {
+      if (!previous.node.isConnected) continue;
+      const animation = previous.node.getAnimations()[0];
+      const timing = animation?.effect?.getTiming();
+      if (!timing || typeof timing.duration !== 'number' ||
+        (animation === previous.animation && timing.duration === previous.duration && timing.direction === previous.direction)) continue;
+      // Computed progress is directional: preserve the screen position, not the
+      // old elapsed time, when CSS changes the duration or reverses the flow.
+      const phase = timing.direction === 'reverse' ? 1 - previous.progress : previous.progress;
+      // An exact duration wraps an infinite animation into its next iteration.
+      // Stay just inside this cycle when preserving the opposite endpoint.
+      animation.currentTime = Math.min(phase, 1 - Number.EPSILON) * timing.duration;
+      if (previous.paused) animation.pause();
+    }
+    this._motionSnapshots = [];
+  }
 
   static readonly styles = css`
     :host { display: block; min-width: 0; container-type: inline-size; }
