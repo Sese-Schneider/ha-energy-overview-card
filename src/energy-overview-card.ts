@@ -5,6 +5,7 @@ import type { HomeAssistant } from './ha-types';
 import { version, repository } from '../package.json';
 import type { EnergyOverviewConfig, EnergyOverviewEntityState, EnergyOverviewEntityUI } from './types';
 import { animationFor, powerFactorDisplay, powerInWatts, readMeasurement } from './helper/measurement';
+import { fireEvent } from './helper/util';
 import { CARD_EDITOR_NAME, CARD_NAME, NAME, ICON_LEADING_DEFAULT, ICON_TRAILING_DEFAULT } from './const';
 
 @customElement(CARD_NAME)
@@ -18,6 +19,8 @@ export class EnergyOverviewCard extends LitElement {
     .primary { font-weight: bold; font-size: 14px; color: var(--primary-text-color); }
     .secondary { font-weight: bolder; font-size: 12px; color: var(--secondary-text-color); }
     .entity { max-width: 492px; padding: 8px; margin: 0 auto; min-width: 0; }
+    .entity[role="button"] { cursor: pointer; }
+    .entity:focus-visible { outline: 2px solid var(--primary-color, #03a9f4); outline-offset: -2px; }
     .name { display: block; overflow-wrap: anywhere; }
     .metadata { display: flex; flex-wrap: wrap; justify-content: space-evenly; align-items: center; gap: 4px 12px; margin-bottom: 2px; }
     .metadata-left { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 12px; min-width: 0; }
@@ -108,8 +111,17 @@ export class EnergyOverviewCard extends LitElement {
     const pfUnit = pf?.value === undefined ? '' : '%';
     const className = `entity entity-${entity.key}`;
     const colorStyle = `--energy-line-color: ${entity.color || 'var(--energy-grid-consumption-color, var(--primary-color, #03a9f4))'};`;
+    const actionConfig = this._actionConfig(entity.key);
     return html`
-      <div class=${className} style=${colorStyle}>
+      <div class=${className} style=${colorStyle} role=${actionConfig ? 'button' : nothing}
+        tabindex=${actionConfig ? '0' : nothing}
+        @click=${() => this._activate(entity.key)}
+        @keydown=${(event: KeyboardEvent) => {
+          if (actionConfig && (event.key === 'Enter' || event.key === ' ')) {
+            event.preventDefault();
+            if (!event.repeat) this._activate(entity.key);
+          }
+        }}>
         ${entity.name ? html`<span class="primary name">${entity.name}</span>` : nothing}
         <div class="metadata">
           ${entity.current || entity.voltage || entity.frequency ? html`
@@ -139,6 +151,23 @@ export class EnergyOverviewCard extends LitElement {
         </div>
       </div>
     `;
+  }
+
+  private _actionConfig(key: number) {
+    const entity = this._config?.entities[key];
+    const action = entity?.tap_action;
+    if (!entity || !action) return undefined;
+    const target = action.entity || entity.power;
+    if (action.action === 'more-info' && this.hass?.states[target]) return { entity: target, tap_action: action };
+    if (action.action === 'navigate' && typeof action.navigation_path === 'string' && action.navigation_path.trim()) {
+      return { entity: target, tap_action: action };
+    }
+    return undefined;
+  }
+
+  private _activate(key: number): void {
+    const config = this._actionConfig(key);
+    if (config) fireEvent(this, 'hass-action', { config, action: 'tap' });
   }
 
   /**

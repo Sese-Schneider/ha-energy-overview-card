@@ -6,7 +6,7 @@ import { capitalize, fireEvent } from "./helper/util";
 import type { HomeAssistant } from "./ha-types";
 import { ENTITY_EDITOR_NAME } from "./const";
 import { EnergyOverviewEntity } from "./types";
-import { ANIMATION_SCHEMA, ENTITY_DATA_SCHEMA, ENTITY_VISUALS_SCHEMA } from "./schemas";
+import { ANIMATION_SCHEMA, ENTITY_DATA_SCHEMA, ENTITY_VISUALS_SCHEMA, TAP_ACTION_SCHEMA } from "./schemas";
 
 @customElement(ENTITY_EDITOR_NAME)
 export class EnergyOverviewEntityEditor extends LitElement {
@@ -40,6 +40,11 @@ export class EnergyOverviewEntityEditor extends LitElement {
     this._publish({ ...this.config, animation: ev.detail.value });
   }
 
+  private _tapActionChanged(ev: CustomEvent<{ value: EnergyOverviewEntity['tap_action'] }>): void {
+    ev.stopPropagation();
+    if (this.config) this._publish({ ...this.config, tap_action: ev.detail.value });
+  }
+
   render(): TemplateResult | symbol {
     if (!this.hass || !this.config) {
       return nothing;
@@ -70,6 +75,10 @@ export class EnergyOverviewEntityEditor extends LitElement {
         .computeLabel="${this._computeLabel}"
         @value-changed="${this._animationChanged}">
       </ha-form>
+      <h3>Tap action</h3>
+      <ha-form .hass=${this.hass} .data=${this.config.tap_action ?? { action: 'none' }}
+        .schema=${TAP_ACTION_SCHEMA} .computeLabel=${this._computeLabel}
+        @value-changed=${this._tapActionChanged}></ha-form>
     `;
   }
 

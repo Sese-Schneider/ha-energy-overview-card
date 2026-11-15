@@ -18,6 +18,7 @@ export interface EnergyOverviewEntity {
   icon_leading?: string;
   color?: string;
   animation?: EnergyOverviewAnimation;
+  tap_action?: { action: 'none' | 'more-info' | 'navigate'; entity?: string; navigation_path?: string };
 }
 
 export interface EnergyOverviewEntityState {

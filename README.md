@@ -65,20 +65,40 @@ Direct configuration via YAML is also available. For details see below.
 
 #### PowerEntity
 
-| Name           | Type            | Requirement  | Description                        | Default                                |
-| -------------- | --------------- | ------------ | ---------------------------------- | -------------------------------------- |
-| power          | state entity    | **Required** | State entity for power             |                                        |
-| voltage        | state entity    | _Optional_   | State entity for voltage           |                                        |
-| current        | state entity    | _Optional_   | State entity for current           |                                        |
-| frequency      | state entity    | _Optional_   | State entity for frequency         |                                        |
-| power_factor   | state entity    | _Optional_   | State entity for power_factor      |                                        |
-| name           | string          | _Optional_   | Name label                         |                                        |
-| icon_leading   | string          | _Optional_   | Leading MD icon                    | `mdi:transmission-tower`               |
-| icon_trailing  | string          | _Optional_   | Trailing MD icon                   | `mdi:home-lightning-bolt`              |
-| label_leading  | string          | _Optional_   | Leading label                      |                                        |
-| label_trailing | string          | _Optional_   | Trailing label                     |                                        |
-| color          | string          | _Optional_   | CSS color                          | `var(--energy-grid-consumption-color)` |
-| animation      | AnimationConfig | _Optional_   | Overwrite for the global animation |                                        |
+| Name           | Type            | Requirement  | Description                            | Default                                |
+| -------------- | --------------- | ------------ | -------------------------------------- | -------------------------------------- |
+| power          | state entity    | **Required** | State entity for power                 |                                        |
+| voltage        | state entity    | _Optional_   | State entity for voltage               |                                        |
+| current        | state entity    | _Optional_   | State entity for current               |                                        |
+| frequency      | state entity    | _Optional_   | State entity for frequency             |                                        |
+| power_factor   | state entity    | _Optional_   | State entity for power_factor          |                                        |
+| name           | string          | _Optional_   | Name label                             |                                        |
+| icon_leading   | string          | _Optional_   | Leading MD icon                        | `mdi:transmission-tower`               |
+| icon_trailing  | string          | _Optional_   | Trailing MD icon                       | `mdi:home-lightning-bolt`              |
+| label_leading  | string          | _Optional_   | Leading label                          |                                        |
+| label_trailing | string          | _Optional_   | Trailing label                         |                                        |
+| color          | string          | _Optional_   | CSS color                              | `var(--energy-grid-consumption-color)` |
+| animation      | AnimationConfig | _Optional_   | Overwrite for the global animation     |                                        |
+| tap_action     | TapAction       | _Optional_   | Row action on click/tap or Enter/Space | No action                              |
+
+#### TapAction
+
+Set `action` to `more-info`, `navigate`, or `none`. More-info targets the row's
+power sensor unless `entity` is specified; a missing target disables the action.
+Navigation requires `navigation_path`. Actions are dispatched through Home
+Assistant's native action handler. Existing rows remain noninteractive by default.
+Configure this in the row editor's **Tap action** section or YAML:
+
+```yaml
+entities:
+  - power: sensor.home_power
+    tap_action:
+      action: more-info
+  - power: sensor.solar_power
+    tap_action:
+      action: navigate
+      navigation_path: /lovelace/solar
+```
 
 #### AnimationConfig
 

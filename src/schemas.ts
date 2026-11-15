@@ -65,6 +65,16 @@ export const TITLE_SCHEMA = [
   { name: "title", label: "Title", selector: { text: {} } },
 ];
 
+export const TAP_ACTION_SCHEMA = [
+  { name: 'action', selector: { select: { mode: 'dropdown', options: [
+    { value: 'none', label: 'No action' },
+    { value: 'more-info', label: 'More information' },
+    { value: 'navigate', label: 'Navigate' },
+  ] } } },
+  { name: 'entity', label: 'More-info entity (defaults to power sensor)', selector: { entity: {} } },
+  { name: 'navigation_path', label: 'Navigation path', selector: { text: {} } },
+];
+
 export const ORDER_BY_SCHEMA = [
   {
     name: "order_by",
