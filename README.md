@@ -65,20 +65,29 @@ Direct configuration via YAML is also available. For details see below.
 
 #### PowerEntity
 
-| Name           | Type            | Requirement  | Description                        | Default                                |
-| -------------- | --------------- | ------------ | ---------------------------------- | -------------------------------------- |
-| power          | state entity    | **Required** | State entity for power             |                                        |
-| voltage        | state entity    | _Optional_   | State entity for voltage           |                                        |
-| current        | state entity    | _Optional_   | State entity for current           |                                        |
-| frequency      | state entity    | _Optional_   | State entity for frequency         |                                        |
-| power_factor   | state entity    | _Optional_   | State entity for power_factor      |                                        |
-| name           | string          | _Optional_   | Name label                         |                                        |
-| icon_leading   | string          | _Optional_   | Leading MD icon                    | `mdi:transmission-tower`               |
-| icon_trailing  | string          | _Optional_   | Trailing MD icon                   | `mdi:home-lightning-bolt`              |
-| label_leading  | string          | _Optional_   | Leading label                      |                                        |
-| label_trailing | string          | _Optional_   | Trailing label                     |                                        |
-| color          | string          | _Optional_   | CSS color                          | `var(--energy-grid-consumption-color)` |
-| animation      | AnimationConfig | _Optional_   | Overwrite for the global animation |                                        |
+| Name              | Type            | Requirement  | Description                                                   | Default                                |
+| ----------------- | --------------- | ------------ | ------------------------------------------------------------- | -------------------------------------- |
+| power             | state entity    | **Required** | State entity for power                                        |                                        |
+| voltage           | state entity    | _Optional_   | State entity for voltage                                      |                                        |
+| current           | state entity    | _Optional_   | State entity for current                                      |                                        |
+| frequency         | state entity    | _Optional_   | State entity for frequency                                    |                                        |
+| power_factor      | state entity    | _Optional_   | State entity for power_factor                                 |                                        |
+| name              | string          | _Optional_   | Name label                                                    |                                        |
+| icon_leading      | string          | _Optional_   | Leading MD icon                                               | `mdi:transmission-tower`               |
+| icon_trailing     | string          | _Optional_   | Trailing MD icon                                              | `mdi:home-lightning-bolt`              |
+| label_leading     | string          | _Optional_   | Leading label                                                 |                                        |
+| label_trailing    | string          | _Optional_   | Trailing label                                                |                                        |
+| color             | string          | _Optional_   | CSS color                                                     | `var(--energy-grid-consumption-color)` |
+| hide_below        | number          | _Optional_   | Hide row when absolute power is below this threshold in watts | Disabled                               |
+| hide_below_signed | boolean         | _Optional_   | Compare signed power instead of absolute power                | false                                  |
+| animation         | AnimationConfig | _Optional_   | Overwrite for the global animation                            |                                        |
+
+Set `hide_below: 1` to hide a row consuming or producing less than 1 W, including
+zero. Values equal to the threshold remain visible. Units are normalized to watts.
+Set `hide_below_signed: true` to compare signed power instead (negative export
+readings will then fall below a nonnegative threshold). Missing/unavailable
+readings remain visible. Invalid or negative thresholds disable filtering.
+Configure these options in the row's visual editor or YAML; no templates are required.
 
 #### AnimationConfig
 
