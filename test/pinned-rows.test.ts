@@ -32,9 +32,14 @@ it('keeps pinned rows in config order and sorts only unpinned rows in normalized
   expect(names(card)).toEqual(['Solar', 'Missing', 'Small', 'Large']);
   expect(entities[0].name).toBe('Small');
 });
-it('preserves unpinned config order without sorting and legacy behavior without pins', async () => {
-  expect(names(await setup())).toEqual(['Solar', 'Missing', 'Small', 'Large']);
-  expect(names(await setup('power', entities.map((entity) => ({ ...entity, pinned: false }))))).toEqual(['Large', 'Small', 'Missing', 'Solar']);
+it.each([undefined, ''])('keeps pinned rows first and configured order within both groups when order_by is %s', async (orderBy) => {
+  expect(names(await setup(orderBy))).toEqual(['Solar', 'Missing', 'Small', 'Large']);
+});
+it('preserves legacy configured ordering and measurement sorting without pinned rows', async () => {
+  const unpinned = entities.map((entity) => ({ ...entity, pinned: false }));
+  expect(names(await setup(undefined, unpinned))).toEqual(['Small', 'Solar', 'Large', 'Missing']);
+  expect(names(await setup('', unpinned))).toEqual(['Small', 'Solar', 'Large', 'Missing']);
+  expect(names(await setup('power', unpinned))).toEqual(['Large', 'Small', 'Missing', 'Solar']);
 });
 it('saves pinning through the visual editor without changing existing settings', async () => {
   if (!customElements.get('ha-form')) customElements.define('ha-form', class extends HTMLElement {});

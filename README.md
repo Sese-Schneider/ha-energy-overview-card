@@ -84,7 +84,10 @@ Direct configuration via YAML is also available. For details see below.
 Set `pinned: true` on a row (or enable **Pin row above sorted entities** in its
 visual editor) to keep solar or summary rows at the top. Multiple pinned rows
 retain their configured order; only unpinned rows are sorted by `order_by`.
-Without `order_by`, unpinned rows also retain their configured order.
+Pinning applies even when `order_by` is omitted or set to **None**. Pinned rows
+still come first; configured order is preserved separately within the pinned and
+unpinned groups. With no pinned rows and sorting disabled, the entire list retains
+its configured order.
 
 #### AnimationConfig
 
