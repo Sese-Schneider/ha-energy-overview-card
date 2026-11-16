@@ -65,20 +65,29 @@ Direct configuration via YAML is also available. For details see below.
 
 #### PowerEntity
 
-| Name           | Type            | Requirement  | Description                        | Default                                |
-| -------------- | --------------- | ------------ | ---------------------------------- | -------------------------------------- |
-| power          | state entity    | **Required** | State entity for power             |                                        |
-| voltage        | state entity    | _Optional_   | State entity for voltage           |                                        |
-| current        | state entity    | _Optional_   | State entity for current           |                                        |
-| frequency      | state entity    | _Optional_   | State entity for frequency         |                                        |
-| power_factor   | state entity    | _Optional_   | State entity for power_factor      |                                        |
-| name           | string          | _Optional_   | Name label                         |                                        |
-| icon_leading   | string          | _Optional_   | Leading MD icon                    | `mdi:transmission-tower`               |
-| icon_trailing  | string          | _Optional_   | Trailing MD icon                   | `mdi:home-lightning-bolt`              |
-| label_leading  | string          | _Optional_   | Leading label                      |                                        |
-| label_trailing | string          | _Optional_   | Trailing label                     |                                        |
-| color          | string          | _Optional_   | CSS color                          | `var(--energy-grid-consumption-color)` |
-| animation      | AnimationConfig | _Optional_   | Overwrite for the global animation |                                        |
+| Name           | Type            | Requirement  | Description                                              | Default                                |
+| -------------- | --------------- | ------------ | -------------------------------------------------------- | -------------------------------------- |
+| power          | state entity    | **Required** | State entity for power                                   |                                        |
+| voltage        | state entity    | _Optional_   | State entity for voltage                                 |                                        |
+| current        | state entity    | _Optional_   | State entity for current                                 |                                        |
+| frequency      | state entity    | _Optional_   | State entity for frequency                               |                                        |
+| power_factor   | state entity    | _Optional_   | State entity for power_factor                            |                                        |
+| name           | string          | _Optional_   | Name label                                               |                                        |
+| pinned         | boolean         | _Optional_   | Keep row above unpinned rows, outside `order_by` sorting | false                                  |
+| icon_leading   | string          | _Optional_   | Leading MD icon                                          | `mdi:transmission-tower`               |
+| icon_trailing  | string          | _Optional_   | Trailing MD icon                                         | `mdi:home-lightning-bolt`              |
+| label_leading  | string          | _Optional_   | Leading label                                            |                                        |
+| label_trailing | string          | _Optional_   | Trailing label                                           |                                        |
+| color          | string          | _Optional_   | CSS color                                                | `var(--energy-grid-consumption-color)` |
+| animation      | AnimationConfig | _Optional_   | Overwrite for the global animation                       |                                        |
+
+Set `pinned: true` on a row (or enable **Pin row above sorted entities** in its
+visual editor) to keep solar or summary rows at the top. Multiple pinned rows
+retain their configured order; only unpinned rows are sorted by `order_by`.
+Pinning applies even when `order_by` is omitted or set to **None**. Pinned rows
+still come first; configured order is preserved separately within the pinned and
+unpinned groups. With no pinned rows and sorting disabled, the entire list retains
+its configured order.
 
 #### AnimationConfig
 

@@ -12,6 +12,7 @@ export interface EnergyOverviewEntity {
   frequency?: string;
   power_factor?: string;
   name?: string;
+  pinned?: boolean;
   label_trailing?: string;
   label_leading?: string;
   icon_trailing?: string;
