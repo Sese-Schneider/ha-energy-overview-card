@@ -1,4 +1,4 @@
-import { beforeEach, expect, it } from 'vitest';
+import { beforeEach, expect, it, vi } from 'vitest';
 import { commands } from 'vitest/browser';
 import type { EnergyOverviewCard } from '../src/energy-overview-card';
 import type { EnergyOverviewCardEditor } from '../src/energy-overview-card-editor';
@@ -28,4 +28,28 @@ it('loads the exact release bundle, reacts to state updates and opens its bundle
   await expect.poll(() => editor.shadowRoot?.querySelector('#add-card')?.textContent).toBe('Add entity');
   editor.remove();
   card.remove();
+});
+
+it('uses HA native color helpers in the exact production bundle', async () => {
+  const previous = window.loadCardHelpers;
+  window.loadCardHelpers = vi.fn(async () => ({
+    createCardElement: () => document.createElement('div'),
+    computeCssColor: (color: string) => color === 'future-color' ? 'var(--future-color)' : color,
+    computeCssVariableName: (color: string) => color === 'future-color' ? '--future-color' : color,
+  }));
+  let card: EnergyOverviewCard | undefined;
+  try {
+    await import(/* @vite-ignore */ `${location.origin}/dist/energy-overview-card.js`);
+    card = document.createElement('energy-overview-card') as EnergyOverviewCard;
+    card.hass = { states: { 'sensor.power': { state: '500', attributes: {} } }, locale: { language: 'en' }, localize: () => '' };
+    card.style.setProperty('--future-color', '#123456');
+    card.setConfig({ type: 'custom:energy-overview-card', entities: [{ power: 'sensor.power', color: 'future-color' }] });
+    document.body.append(card);
+    await expect.poll(() => getComputedStyle(card!.shadowRoot!.querySelector('.grid')!).stroke).toBe('rgb(18, 52, 86)');
+    expect(window.loadCardHelpers).toHaveBeenCalledTimes(1);
+  } finally {
+    card?.remove();
+    if (previous) window.loadCardHelpers = previous;
+    else delete window.loadCardHelpers;
+  }
 });

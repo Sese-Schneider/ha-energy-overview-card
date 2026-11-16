@@ -65,20 +65,62 @@ Direct configuration via YAML is also available. For details see below.
 
 #### PowerEntity
 
-| Name           | Type            | Requirement  | Description                        | Default                                |
-| -------------- | --------------- | ------------ | ---------------------------------- | -------------------------------------- |
-| power          | state entity    | **Required** | State entity for power             |                                        |
-| voltage        | state entity    | _Optional_   | State entity for voltage           |                                        |
-| current        | state entity    | _Optional_   | State entity for current           |                                        |
-| frequency      | state entity    | _Optional_   | State entity for frequency         |                                        |
-| power_factor   | state entity    | _Optional_   | State entity for power_factor      |                                        |
-| name           | string          | _Optional_   | Name label                         |                                        |
-| icon_leading   | string          | _Optional_   | Leading MD icon                    | `mdi:transmission-tower`               |
-| icon_trailing  | string          | _Optional_   | Trailing MD icon                   | `mdi:home-lightning-bolt`              |
-| label_leading  | string          | _Optional_   | Leading label                      |                                        |
-| label_trailing | string          | _Optional_   | Trailing label                     |                                        |
-| color          | string          | _Optional_   | CSS color                          | `var(--energy-grid-consumption-color)` |
-| animation      | AnimationConfig | _Optional_   | Overwrite for the global animation |                                        |
+| Name             | Type                                  | Requirement  | Description                                        | Default                                |
+| ---------------- | ------------------------------------- | ------------ | -------------------------------------------------- | -------------------------------------- |
+| power            | state entity                          | **Required** | State entity for power                             |                                        |
+| voltage          | state entity                          | _Optional_   | State entity for voltage                           |                                        |
+| current          | state entity                          | _Optional_   | State entity for current                           |                                        |
+| frequency        | state entity                          | _Optional_   | State entity for frequency                         |                                        |
+| power_factor     | state entity                          | _Optional_   | State entity for power_factor                      |                                        |
+| name             | string                                | _Optional_   | Name label                                         |                                        |
+| icon_leading     | string                                | _Optional_   | Leading MD icon                                    | `mdi:transmission-tower`               |
+| icon_trailing    | string                                | _Optional_   | Trailing MD icon                                   | `mdi:home-lightning-bolt`              |
+| label_leading    | string                                | _Optional_   | Leading label                                      |                                        |
+| label_trailing   | string                                | _Optional_   | Trailing label                                     |                                        |
+| color            | string                                | _Optional_   | CSS color                                          | `var(--energy-grid-consumption-color)` |
+| color_thresholds | Array<{value: number, color: string}> | _Optional_   | Dynamic line/dot colors by absolute power in watts | None                                   |
+| animation        | AnimationConfig                       | _Optional_   | Overwrite for the global animation                 |                                        |
+
+Configure **Color thresholds** in the row editor or use YAML:
+
+The default color and every threshold use Home Assistant's `ui_color` selector,
+the same control as the Distribution card. Choose a palette color or enter a
+custom value. Values remain strings in YAML: palette names follow HA's theme;
+existing hex, RGB/RGBA and CSS-variable values remain supported without conversion.
+Clear the default color to use the card's theme fallback. Clearing a threshold's
+color makes that threshold inactive until another color is selected.
+
+```yaml
+entities:
+  - power: sensor.home_power
+    color: "#488fc2"
+    color_thresholds:
+      - value: 100
+        color: orange
+      - value: 1000
+        color: red
+```
+
+Each `value` is an inclusive lower bound in absolute watts, after unit conversion.
+The greatest matching threshold wins regardless of list order; for equal bounds,
+the last entry wins. Export power uses the same magnitude-based colors. Below all
+thresholds, or for unavailable readings, the static `color`/theme fallback is used.
+Invalid bounds or CSS colors are ignored. CSS variables such as
+`var(--primary-color)` are supported. Animation speed already adapts to power and
+is configured independently.
+
+Palette colors such as `amber`, `deep-orange`, and `primary` resolve through
+their corresponding HA theme variables. Literal CSS colors are used as a fallback
+when a theme variable is missing; other palette names fall back to the card theme.
+
+When HA exposes both `computeCssColor` and `computeCssVariableName` through
+`window.loadCardHelpers()`, the card prefers that native pair so palette recognition
+matches the running frontend. It renders immediately with the vendored fallback
+and refreshes when native helpers load. Older versions, missing/partial exports,
+failed loads and loads stalled for 15 seconds retain the fallback. The provider is
+cached, never mixed with the other provider, and no HA version-number check is used.
+Failed loads can be retried by later cards or on reconnection, without retrying on
+every sensor update.
 
 #### AnimationConfig
 
@@ -182,6 +224,24 @@ perform a hard refresh or clear the browser cache.
 [Troubleshooting](https://github.com/thomasloven/hass-config/wiki/Lovelace-Plugins)
 
 ## Publishing releases
+
+### Home Assistant color helper dependency
+
+Color-name resolution prefers HA's public native helper pair when available.
+Older HA versions use a pinned, unmodified copy of Home Assistant's
+`compute-color.ts`, not a hand-maintained palette. This fallback is a build-time dependency:
+normal builds verify the checked-in source and licensing checksums offline, and
+esbuild includes the needed helpers in the standalone card. The release bundle
+retains the complete upstream Apache-2.0 license and attribution alongside the
+card's MIT notice. The installed HA version does not update this pinned fallback
+snapshot; newer HA versions use their own helpers instead.
+
+See [dependency provenance and updating](src/vendor/home-assistant/README.md).
+Use `npm run vendor:ha-colors` to verify the copy, or pass
+`-- --update <full-commit-sha>` to refresh it explicitly before reviewing the diff
+and rerunning tests. Never point normal builds at a mutable branch.
+
+### Release workflow
 
 Maintainers can run the **Release** workflow from GitHub Actions on `main` or
 `dev`. Enter a new version without the `v` prefix: `X.Y.Z` on `main` (for example,

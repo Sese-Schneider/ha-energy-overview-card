@@ -58,7 +58,11 @@ export const ENTITY_VISUALS_SCHEMA = [
       { name: "label_trailing", selector: { text: {} } },
     ],
   },
-  { name: "color", selector: { text: {} } },
+  { name: "color", selector: { ui_color: {} } },
+];
+
+export const THRESHOLD_COLOR_SCHEMA = [
+  { name: 'color', label: 'Color', selector: { ui_color: {} } },
 ];
 
 export const TITLE_SCHEMA = [

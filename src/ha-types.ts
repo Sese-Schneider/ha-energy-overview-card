@@ -21,7 +21,11 @@ export enum NumberFormat {
   system = 'system',
   none = 'none',
 }
-export interface CardHelpers {
+export interface ColorHelpers {
+  computeCssColor: (color: string) => string;
+  computeCssVariableName: (color: string) => string;
+}
+export interface CardHelpers extends Partial<ColorHelpers> {
   createCardElement: (config: { type: string }) => HTMLElement;
 }
 declare global {

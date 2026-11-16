@@ -34,8 +34,10 @@
     "check": "npm run lint && npm run typecheck",
     "lint": "eslint src scripts test vitest.config.ts",
     "typecheck": "tsc --noEmit",
-    "test": "npm run build && vitest run && vitest run --mode webkit",
-    "test:coverage": "npm run build && vitest run --coverage",
+    "test": "npm run build && npm run test:vendor && vitest run && vitest run --mode webkit",
+    "test:coverage": "npm run build && npm run test:vendor && vitest run --coverage",
+    "test:vendor": "node --test test/vendor-build.test.mjs",
+    "vendor:ha-colors": "node scripts/vendor-ha-colors.mjs",
     "test:watch": "npm run build && vitest"
   },
   "homepage": "https://github.com/Sese-Schneider/ha-energy-overview-card",

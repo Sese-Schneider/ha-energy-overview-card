@@ -17,6 +17,7 @@ export interface EnergyOverviewEntity {
   icon_trailing?: string;
   icon_leading?: string;
   color?: string;
+  color_thresholds?: Array<{ value: number; color: string }>;
   animation?: EnergyOverviewAnimation;
 }
 
