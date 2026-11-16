@@ -10,7 +10,9 @@ Normal builds verify the checked-in source, license and notices **offline**.
 esbuild bundles the imported helpers and their palette data, tree-shakes unused
 exports, and includes the attribution and complete upstream license in the release
 JavaScript. There is no runtime network request or dependency on HA's private chunks.
-This dependency is a pinned snapshot, not the installed HA frontend's live version.
+This dependency is a pinned fallback snapshot, not the installed HA frontend's
+live version. When HA's public helper module exposes both color functions, the
+card uses that native pair instead. It never mixes native and vendored mappings.
 
 Refresh explicitly using a reviewed upstream commit:
 

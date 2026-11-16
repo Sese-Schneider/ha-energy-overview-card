@@ -113,6 +113,15 @@ Palette colors such as `amber`, `deep-orange`, and `primary` resolve through
 their corresponding HA theme variables. Literal CSS colors are used as a fallback
 when a theme variable is missing; other palette names fall back to the card theme.
 
+When HA exposes both `computeCssColor` and `computeCssVariableName` through
+`window.loadCardHelpers()`, the card prefers that native pair so palette recognition
+matches the running frontend. It renders immediately with the vendored fallback
+and refreshes when native helpers load. Older versions, missing/partial exports,
+failed loads and loads stalled for 15 seconds retain the fallback. The provider is
+cached, never mixed with the other provider, and no HA version-number check is used.
+Failed loads can be retried by later cards or on reconnection, without retrying on
+every sensor update.
+
 #### AnimationConfig
 
 | Name         | Type    | Requirement | Description                                                                     | Default |
@@ -218,12 +227,14 @@ perform a hard refresh or clear the browser cache.
 
 ### Home Assistant color helper dependency
 
-Color-name resolution uses a pinned, unmodified copy of Home Assistant's
-`compute-color.ts`, not a hand-maintained palette. This is a build-time dependency:
+Color-name resolution prefers HA's public native helper pair when available.
+Older HA versions use a pinned, unmodified copy of Home Assistant's
+`compute-color.ts`, not a hand-maintained palette. This fallback is a build-time dependency:
 normal builds verify the checked-in source and licensing checksums offline, and
 esbuild includes the needed helpers in the standalone card. The release bundle
 retains the complete upstream Apache-2.0 license and attribution alongside the
-card's MIT notice. The installed HA version does not update this pinned snapshot.
+card's MIT notice. The installed HA version does not update this pinned fallback
+snapshot; newer HA versions use their own helpers instead.
 
 See [dependency provenance and updating](src/vendor/home-assistant/README.md).
 Use `npm run vendor:ha-colors` to verify the copy, or pass

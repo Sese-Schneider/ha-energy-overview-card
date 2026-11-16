@@ -1,17 +1,39 @@
 import { css, html, svg, LitElement, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
-import type { HomeAssistant } from './ha-types';
+import type { ColorHelpers, HomeAssistant } from './ha-types';
 import { version, repository } from '../package.json';
 import type { EnergyOverviewConfig, EnergyOverviewEntityState, EnergyOverviewEntityUI } from './types';
 import { animationFor, powerFactorDisplay, powerInWatts, readMeasurement } from './helper/measurement';
-import { lineColor } from './helper/color';
+import { lineColor, loadColorHelpers, VENDORED_COLOR_HELPERS } from './helper/color';
 import { CARD_EDITOR_NAME, CARD_NAME, NAME, ICON_LEADING_DEFAULT, ICON_TRAILING_DEFAULT } from './const';
 
 @customElement(CARD_NAME)
 export class EnergyOverviewCard extends LitElement {
   @property({ attribute: false }) public hass?: HomeAssistant;
   @state() private _config?: EnergyOverviewConfig;
+  @state() private _colorHelpers: ColorHelpers = VENDORED_COLOR_HELPERS;
+  private _colorLoader?: Window['loadCardHelpers'];
+
+  public connectedCallback(): void {
+    super.connectedCallback();
+    // Reconnecting permits retry after a transient loading failure.
+    this._colorLoader = undefined;
+    this._colorHelpers = VENDORED_COLOR_HELPERS;
+    this.requestUpdate();
+  }
+
+  protected willUpdate(): void {
+    const candidate = window.loadCardHelpers;
+    const loader = typeof candidate === 'function' ? candidate : undefined;
+    if (loader === this._colorLoader) return;
+    this._colorLoader = loader;
+    this._colorHelpers = VENDORED_COLOR_HELPERS;
+    if (!loader) return;
+    void loadColorHelpers(loader).then((helpers) => {
+      if (this._colorLoader === loader && window.loadCardHelpers === loader) this._colorHelpers = helpers;
+    });
+  }
 
   static readonly styles = css`
     :host { display: block; min-width: 0; container-type: inline-size; }
@@ -108,7 +130,7 @@ export class EnergyOverviewCard extends LitElement {
     const pf = entity.power_factor;
     const pfUnit = pf?.value === undefined ? '' : '%';
     const className = `entity entity-${entity.key}`;
-    const colorStyle = `--energy-line-color: ${lineColor(entity.power, entity)};`;
+    const colorStyle = `--energy-line-color: ${lineColor(entity.power, entity, this._colorHelpers)};`;
     return html`
       <div class=${className} style=${colorStyle}>
         ${entity.name ? html`<span class="primary name">${entity.name}</span>` : nothing}
