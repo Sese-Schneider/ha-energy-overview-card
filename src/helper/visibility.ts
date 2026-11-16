@@ -7,5 +7,8 @@ export function rowVisible(power: EnergyOverviewEntityState, config: Pick<Energy
   const watts = powerInWatts(power);
   // Never hide failures as though they were zero consumption.
   if (watts === undefined || !Number.isFinite(watts)) return true;
-  return (config.hide_below_signed === true ? watts : Math.abs(watts)) >= threshold;
+  const value = config.hide_below_signed === true ? watts : Math.abs(watts);
+  // Allow conversion round-off without adding a fixed floor for tiny readings.
+  const tolerance = 2 * Number.EPSILON * Math.max(Math.abs(value), threshold);
+  return value >= threshold || threshold - value <= tolerance;
 }

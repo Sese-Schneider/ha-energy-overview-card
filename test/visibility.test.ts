@@ -17,6 +17,16 @@ it('keeps unavailable readings and invalid or omitted thresholds visible', () =>
   for (const value of [undefined, NaN, Infinity]) expect(rowVisible(power(value), { hide_below: 10 })).toBe(true);
   expect(rowVisible(power(0), { hide_below: 0 })).toBe(true);
 });
+it.each([{ value: 1.001, signed: false }, { value: -1.001, signed: false }, { value: 1.001, signed: true }])('retains converted boundary equality for $value kW with signed mode $signed', ({ value, signed }) => {
+  expect(rowVisible(power(value, 'kW'), { hide_below: 1001, hide_below_signed: signed })).toBe(true);
+});
+it('keeps genuinely lower, tiny and signed-negative readings below the threshold', () => {
+  expect(rowVisible(power(1.00099, 'kW'), { hide_below: 1001 })).toBe(false);
+  expect(rowVisible(power(-1.001, 'kW'), { hide_below: 1001, hide_below_signed: true })).toBe(false);
+  expect(rowVisible(power(5e-13), { hide_below: 1e-12 })).toBe(false);
+  expect(rowVisible(power(0), { hide_below: Number.MIN_VALUE })).toBe(false);
+  expect(rowVisible(power(-Number.MIN_VALUE), { hide_below: 0, hide_below_signed: true })).toBe(false);
+});
 const hass = { states: { 'sensor.power': { state: '0', attributes: { unit_of_measurement: 'W' } } }, locale: { language: 'en' }, localize: () => '' };
 it('filters before sorting, retains original row keys and restores rows on state changes', async () => {
   const card = new EnergyOverviewCard();
@@ -39,6 +49,16 @@ it('distinguishes all-hidden rows from an unconfigured card', async () => {
   document.body.append(card);
   await card.updateComplete;
   expect(card.shadowRoot!.textContent).toContain('No entities above');
+});
+it('renders a row at a converted equality boundary and hides it after a real decrease', async () => {
+  const card = new EnergyOverviewCard();
+  card.hass = { ...hass, states: { 'sensor.power': { state: '1.001', attributes: { unit_of_measurement: 'kW' } } } };
+  card.setConfig({ type: 'custom:energy-overview-card', entities: [{ power: 'sensor.power', hide_below: 1001 }] });
+  document.body.append(card); await card.updateComplete;
+  expect(card.shadowRoot!.querySelector('.entity-0')).not.toBeNull();
+  card.hass = { ...hass, states: { 'sensor.power': { state: '1.00099', attributes: { unit_of_measurement: 'kW' } } } };
+  await card.updateComplete;
+  expect(card.shadowRoot!.querySelector('.entity-0')).toBeNull();
 });
 it('preserves visibility options through visual edits', async () => {
   if (!customElements.get('ha-form')) customElements.define('ha-form', class extends HTMLElement {});
